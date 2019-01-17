@@ -9,7 +9,7 @@ from app.api.v2.models.db_connect import db_init
 def create_app(name_conf):
     my_app = Flask(__name__)
     my_app.config['SECRET_KEY'] = os.getenv("SECRET")
-    my_app.register_blueprint(v2_blue, url_prefix="/api/v2")
+    my_app.register_blueprint(v2_blue, url_prefix="/api/v2/auth")
 
     db_init(os.getenv("DB_URL"))
 

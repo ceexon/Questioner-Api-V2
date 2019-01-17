@@ -1,5 +1,9 @@
 import os
 import sys
+import datetime
+import uuid
+from flask import abort, make_response, jsonify
+from werkzeug.security import generate_password_hash
 import psycopg2
 
 
@@ -11,7 +15,7 @@ def connect_to_and_query_db(query=None, db_url=None):
         db_url = os.getenv('DB_URL')
     try:
         conn = psycopg2.connect(db_url)
-        print("\n\nConnected {}\n".format(conn.get_dsn_parameters()))
+        # print("\n\nConnected {}\n".format(conn.get_dsn_parameters()))
         cursor = conn.cursor()
         if query:
             cursor.execute(query)
@@ -44,11 +48,11 @@ def set_up_tables():
         othername VARCHAR(30),
         username VARCHAR(40) NOT NULL UNIQUE,
         email VARCHAR(60) NOT NULL UNIQUE,
-        phone VARCHAR(15) NOT NULL,
-        password VARCHAR(60) NOT NULL,
-        publicId VARCHAR(20) NOT NULL,
-        isAdmin BOOLEAN DEFAULT False,
-        register_date TIMESTAMP);"""
+        phone VARCHAR(20) NOT NULL,
+        password VARCHAR(200) NOT NULL,
+        publicId VARCHAR(50) NOT NULL,
+        register_date TIMESTAMP,
+        isAdmin BOOLEAN DEFAULT False);"""
 
     create_meetups_table = """
           CREATE TABLE IF NOT EXISTS meetups (
@@ -135,5 +139,13 @@ def select_from_db(query):
 
 
 if __name__ == '__main__':
-    db_init()
+    # db_init()
+    # some_pass = generate_password_hash("AdM1#n")
+    # some_id = str(uuid.uuid4())
+    # now_t = datetime.datetime.utcnow()
+    # create_a_super = """
+    #    INSERT INTO users(firstname, lastname, username, email, phone, password, publicId, register_date,isAdmin) VALUES(
+    #        "{}","{}","{}","{}","{}",'{}', '{}', '{}',"{}")
+    # """.format("admin", "super", "admin", "admin@sup.adm", "0779977000", some_pass, some_id, now_t, True)
+    # query_db_no_return(create_a_super)
     connect_to_and_query_db()
