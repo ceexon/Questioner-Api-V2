@@ -38,5 +38,6 @@ app_config = {
     'debug': DevelopmentConfig,
     'testing': TestingConfig,
     'staging': StagingConfig,
-    'production': ProductionConfig
+    'production': ProductionConfig,
+    "DB_TEST": os.getenv("DB_URL_TEST")
 }
