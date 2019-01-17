@@ -143,3 +143,31 @@ class UserSignUp(BaseTest):
         error_message = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
             error_message["message"], 'phone number length invalid(10)')
+
+
+class TestUserLogin(BaseTest):
+    def test_successful_login(self):
+        """ tests succesful login """
+        self.client.post("api/v2/auth/signup", data=json.dumps(
+            self.success_signup), content_type="application/json")
+        response = self.client.post(
+            "api/v2/auth/login", data=json.dumps(self.success_signup), content_type="application/json")
+        result = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(result["token"])
+
+        """registered username but wrong password"""
+        self.success_signup["password"] = "toovor"
+        response = self.client.post(
+            "api/v2/auth/login", data=json.dumps(self.success_signup), content_type="application/json")
+        result = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(result["error"], "incorrect password")
+        self.assertEqual(response.status_code, 401)
+
+        """unregistered username"""
+        self.success_signup["username"] = "somename"
+        response = self.client.post(
+            "api/v2/auth/login", data=json.dumps(self.success_signup), content_type="application/json")
+        result = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(result["error"], "unregistered username")
+        self.assertEqual(response.status_code, 401)
