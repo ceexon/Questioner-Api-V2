@@ -1,0 +1,22 @@
+language: python
+
+python:
+  - "3.5.2"
+
+install:
+  - pip install -r requirements.txt
+
+  - pip install coveralls
+
+env:
+  - FLASK_VERSION=1.0.2
+
+before_script:
+  - psql -c 'CREATE DATABASE test_questioner;' -U postgres
+
+script:
+  - python3 -m pytest --cov=app
+  - coveralls
+
+after_success:
+  - coveralls

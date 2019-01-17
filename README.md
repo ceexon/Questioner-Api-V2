@@ -2,6 +2,11 @@
 
 The questioner app is a web that allows users who are attendees of a meetup to be able to raise questions they would like to discuss in the meetup. The questions are then voted on by fellow users to determine which has more priority over the others. The question with most votes is deemed as one with a highest priority.
 
+# Badges
+
+[![Build Status](https://travis-ci.org/kburudi/Questioner-Api-V2.svg?branch=develop)](https://travis-ci.org/kburudi/Questioner-Api-V2)
+[![Coverage Status](https://coveralls.io/repos/github/kburudi/Questioner-Api-V2/badge.svg?branch=develop)](https://coveralls.io/github/kburudi/Questioner-Api-V2?branch=develop)
+
 ## What is required
 
 - Python3
