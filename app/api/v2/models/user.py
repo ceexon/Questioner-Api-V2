@@ -92,18 +92,7 @@ class User:
         Query the users store for a user
         """
         query = """
-        SELECT id, username, email FROM users
+        SELECT id, username, email, password FROM users
         WHERE users.username = '{}'""".format(username)
-        here = db_connect.select_from_db(query)
-        return here
-
-    @staticmethod
-    def query_email(email):
-        """
-        Query the users store for a user
-        """
-        query = """
-        SELECT id, username, email FROM users
-        WHERE users.username = '{}'""".format(email)
         here = db_connect.select_from_db(query)
         return here
