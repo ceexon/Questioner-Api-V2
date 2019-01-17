@@ -23,6 +23,7 @@ class StagingConfig(Config):
 class TestingConfig(Config):
     """ Configuration for the testing environment """
     TESTING = True
+    DEBUG = True
     DB_TEST = os.getenv("DB_URL_TEST")
 
 
