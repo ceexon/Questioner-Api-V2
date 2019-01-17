@@ -4,6 +4,7 @@ import os
 import datetime
 import jwt
 from flask import Blueprint, request, jsonify
+from werkzeug.security import check_password_hash
 from ..utils.base_vals import BaseValidation
 from ..utils.user_vals import UserValidation
 from ..models.user import User
@@ -57,3 +58,22 @@ def user_login():
 
     except TypeError:
         return jsonify({"status": 417, "error": "Expecting Login data!!"}), 417
+
+    valid_login = UserValidation(log_data)
+    valid_login.check_missing_fields(["username", "password"])
+    valid_login.check_field_values_no_whitespace(["username", "password"])
+    username = log_data["username"]
+    password = log_data["password"]
+    user_found = User.query_username(username)
+    if not user_found:
+        return jsonify({"status": 401, "error": "unregistered username"}), 401
+    if not check_password_hash(user_found[0][-1], password):
+        return jsonify({"status": 401, "error": "incorrect password"}), 401
+
+    exp = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+    token = jwt.encode(
+        {"username": username, 'exp': exp}, KEY,
+        algorithm='HS256')
+
+    return jsonify({"status": 200, "message": "logged in successfully",
+                    "token": token.decode("utf-8", KEY)}), 200
