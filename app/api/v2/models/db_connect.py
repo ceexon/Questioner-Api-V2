@@ -42,8 +42,8 @@ def set_up_tables():
         firstname VARCHAR(30) NOT NULL,
         lastname VARCHAR(30) NOT NULL,
         othername VARCHAR(30),
-        username VARCHAR(40) NOT NULL,
-        email VARCHAR(60) NOT NULL,
+        username VARCHAR(40) NOT NULL UNIQUE,
+        email VARCHAR(60) NOT NULL UNIQUE,
         phone VARCHAR(15) NOT NULL,
         password VARCHAR(60) NOT NULL,
         publicId VARCHAR(20) NOT NULL,
@@ -57,7 +57,6 @@ def set_up_tables():
           topic VARCHAR(100) NOT NULL,
           location VARCHAR(200) NOT NULL,
           happen_on VARCHAR(20) NOT NULL,
-          image bytea,
           tags VARCHAR(200) NOT NULL,
           created_on TIMESTAMP);"""
 
