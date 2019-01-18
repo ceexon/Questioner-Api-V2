@@ -4,6 +4,7 @@ import re
 from functools import wraps
 import jwt
 from flask import jsonify, abort, make_response, request
+from ..models import db_connect
 
 KEY = os.getenv("SECRET")
 
@@ -58,14 +59,28 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        if "access-token" in request.headers:
+        if "x-access-token" in request.headers:
             token = request.headers['x-access-token']
         if not token:
             abort(make_response(jsonify({"error": "Token is missing"}), 401))
         try:
             data = jwt.decode(token, KEY, algorithms="HS256")
+
+            print(data)
             current_user = data["username"]
+
         except (jwt.InvalidTokenError, jwt.ExpiredSignatureError, TypeError):
             return jsonify({"error": "Token is invalid or expired"}), 401
         return f(current_user, *args, **kwargs)
     return decorated
+
+
+def get_name_from_token():
+    token = request.headers['x-access-token']
+    try:
+        username = jwt.decode(token, key)
+    except:
+        abort(make_response(
+            jsonify({"message": "Token is expired or invalid"}), 401))
+
+    return username

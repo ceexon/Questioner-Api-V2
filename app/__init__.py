@@ -3,6 +3,7 @@ import psycopg2
 from flask import Flask, Blueprint, jsonify
 from instance.config import app_config
 from app.api.v2.views.user_views import v2_blue
+from app.api.v2.views.meet_views import v_blue
 from app.api.v2.models.db_connect import db_init
 
 
@@ -10,6 +11,7 @@ def create_app(name_conf):
     my_app = Flask(__name__)
     my_app.config['SECRET_KEY'] = os.getenv("SECRET")
     my_app.register_blueprint(v2_blue, url_prefix="/api/v2/auth")
+    my_app.register_blueprint(v_blue, url_prefix="/api/v2")
 
     db_init(os.getenv("DB_URL"))
 

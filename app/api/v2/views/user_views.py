@@ -32,6 +32,7 @@ def user_signup():
         valid_user.validate_password()
         valid_user.validate_phone()
         valid_user.validate_names()
+
         username_taken = User.query_username(username)
         if username_taken:
             return jsonify({"status": 409, "error": "user with username exists"}), 409
@@ -67,7 +68,7 @@ def user_login():
     user_found = User.query_username(username)
     if not user_found:
         return jsonify({"status": 401, "error": "unregistered username"}), 401
-    if not check_password_hash(user_found[0][-1], password):
+    if not check_password_hash(user_found[0][-2], password):
         return jsonify({"status": 401, "error": "incorrect password"}), 401
 
     exp = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
