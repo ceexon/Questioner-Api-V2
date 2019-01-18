@@ -48,7 +48,7 @@ class BaseTest(unittest.TestCase):
 
 class UserSignUp(BaseTest):
 
-    def test_user_can_sign_up(self):
+    def test_user_sign_up(self):
         """user signup success """
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.success_signup),
