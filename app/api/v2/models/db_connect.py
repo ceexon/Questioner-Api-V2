@@ -139,13 +139,5 @@ def select_from_db(query):
 
 
 if __name__ == '__main__':
-    # db_init()
-    # some_pass = generate_password_hash("AdM1#n")
-    # some_id = str(uuid.uuid4())
-    # now_t = datetime.datetime.utcnow()
-    # create_a_super = """
-    #    INSERT INTO users(firstname, lastname, username, email, phone, password, publicId, register_date,isAdmin) VALUES(
-    #        "{}","{}","{}","{}","{}",'{}', '{}', '{}',"{}")
-    # """.format("admin", "super", "admin", "admin@sup.adm", "0779977000", some_pass, some_id, now_t, True)
-    # query_db_no_return(create_a_super)
+    db_init()
     connect_to_and_query_db()

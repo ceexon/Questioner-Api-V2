@@ -24,12 +24,16 @@ class User:
         self.publicId = str(uuid.uuid4())
         self.now = TIME_NOW
         self.isAdmin = isAdmin
+        if self.uname == "admin":
+            self.isAdmin = True
 
     def create_new_user(self):
         """ creates/adds a new user to the users table"""
+        if not User.get_all_users():
+            self.isAdmin = True
         query = """
-			INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date) VALUES(
-			'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}')""".format(self.fname, self.lname, self.other, self.uname, self.email, self.phone, self.password, self.publicId, self.now)
+			INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date, isAdmin) VALUES(
+			'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}','{}')""".format(self.fname, self.lname, self.other, self.uname, self.email, self.phone, self.password, self.publicId, self.now, self.isAdmin)
         db_connect.query_db_no_return(query)
 
     @staticmethod
@@ -92,7 +96,16 @@ class User:
         Query the users store for a user
         """
         query = """
-        SELECT id, username, email, password FROM users
+        SELECT id, username, email, password, isAdmin FROM users
         WHERE users.username = '{}'""".format(username)
         here = db_connect.select_from_db(query)
         return here
+
+    @staticmethod
+    def create_admin_user():
+        adm_pid = str(uuid.uuid4())
+        query = """
+        INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date, isAdmin) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}',"{}")
+        """.format("adm", "super", "user", "admin", "adm@super.men", "0712345678", "llLL77**", adm_pid, datetime.datetime.now(), "True")
+        print(query)
+        db_connect.query_db_no_return(query)
