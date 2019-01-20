@@ -1,12 +1,12 @@
-from app.api.v2.models.db_connect import db_init
-from instance.config import app_config
-from app import create_app
 """The user endpoints tests"""
 import os
 import unittest
 import json
+import psycopg2
+from app.api.v2.models.db_connect import db_init, drop_tables, create_admin, connect_db, delete_dummy_user
+from instance.config import app_config
+from app import create_app
 secret = os.getenv("SECRET")
-
 
 class BaseTest(unittest.TestCase):
     """
@@ -18,9 +18,13 @@ class BaseTest(unittest.TestCase):
         set the variables before each test
         """
         self.app = create_app("testing")
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        self.conn = connect_db()
+        db_init(self.conn)
+        create_admin(self.conn)
+
         self.client = self.app.test_client()
-        self.db_url = app_config['DB_TEST']
-        db_init(self.db_url)
 
         self.success_signup = {
             "firstname": "HHHHH",
@@ -41,19 +45,55 @@ class BaseTest(unittest.TestCase):
             "password": "$$22BBkk"
         }
 
+        self.meetup_ok = {
+            "topic": "Formless",
+            "location": "Nairobi ",
+            "happen_on": "09/04/2019/1600HRS",
+            "tags": ["#meetme", "#works well"]
+        }
+
+        self.meetup_no_topic = {
+            "location": "Nairobi ",
+            "happen_on": "09/04/2019/1600HRS",
+            "tags": ["#meetme", "#works well"]
+        }
+
     def tearDown(self):
-        self.app.testing = False
-        db_init(self.db_url)
+        delete_dummy_user(self.conn)
 
 
 class UserSignUp(BaseTest):
 
-    def test_user_sign_up(self):
+    def test_user_sign_up_success(self):
+        """ test signup fail invalid names """
+        self.success_signup["firstname"] = "j???202||"
+        response = self.client.post("api/v2/auth/signup",
+                                    data=json.dumps(self.success_signup),
+                                    content_type="application/json")
+        error_message = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(
+            error_message["error"], 'invalid naming format')
+        self.assertEqual(
+            error_message["message"], 'first, last and other name can only contain letters')
+        print(error_message)
+        self.assertEqual(response.status_code, 422)
+
         """user signup success """
+        self.success_signup["firstname"] = "working"
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 201)
+
+        """user signup empty json """
+        response = self.client.post("api/v2/auth/signup",
+                                    data=json.dumps({}),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 204)
+
+        """user signup no data """
+        response = self.client.post("api/v2/auth/signup", content_type="application/json")
+        self.assertEqual(response.status_code, 204)
 
         """Test username taken """
         response = self.client.post("api/v2/auth/signup",
@@ -69,21 +109,36 @@ class UserSignUp(BaseTest):
                                     content_type="application/json")
         self.assertEqual(response.status_code, 404)
         error_message = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(error_message["message"], 'email field(s) not found')
+        self.assertEqual(error_message["error"], 'email field(s) not found')
 
         """Test signupfail empty email"""
-        self.success_signup["email"] = ""
+        fake = self.success_signup
+        fake["username"] = "Bakari"
+        fake["email"] = ""
         response = self.client.post("api/v2/auth/signup",
-                                    data=json.dumps(self.success_signup),
+                                    data=json.dumps(fake),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
         errorm = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(errorm["message"], "email field(s) can't be empty")
+        self.assertEqual(errorm["error"], "email field(s) can't be empty")
+
+        """Test signupfail white_space email"""
+        fake = self.success_signup
+        fake["username"] = "Bakari"
+        fake["email"] = "       "
+        response = self.client.post("api/v2/auth/signup",
+                                    data=json.dumps(fake),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 422)
+        errorm = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(errorm["error"], "email field(s) can't be white space only")
 
         """Test signupfail bad email format """
-        self.success_signup["email"] = "...@...com"
+        signup_email = self.success_signup
+        signup_email["username"] = "varchar"
+        signup_email["email"] = "...@...com"
         response = self.client.post("api/v2/auth/signup",
-                                    data=json.dumps(self.success_signup),
+                                    data=json.dumps(signup_email),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
         error_message = json.loads(response.data.decode("utf-8", secret))
@@ -102,7 +157,7 @@ class UserSignUp(BaseTest):
             error_message["error"], 'username can only be a letter, digit or _')
 
         """Test signupfail bad password """
-        self.success_signup["username"] = "jjjnncom"
+        self.success_signup["username"] = "jjjoonncom"
         self.success_signup["password"] = "jjjom"
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.success_signup),
@@ -114,6 +169,7 @@ class UserSignUp(BaseTest):
             error_message["message"], 'lentgh less than 6, no digits, no uppercase letter, no symbol')
 
         """Test signupfail bad phone invalid """
+        self.success_signup["username"] = "jjjoonncom"
         self.success_signup["password"] = "jjjomKK**56"
         self.success_signup["phone"] = "jjjomKK**56"
         response = self.client.post("api/v2/auth/signup",
@@ -125,6 +181,7 @@ class UserSignUp(BaseTest):
             error_message["message"], "phone number can start with '+' and have digits")
 
         """Test signupfail bad phone invalid """
+        self.success_signup["username"] = "jjjoonncom"
         self.success_signup["phone"] = "+737363663"
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.success_signup),
@@ -135,6 +192,7 @@ class UserSignUp(BaseTest):
             error_message["message"], 'phone number length invalid(11-13)')
 
         """Test signupfail bad phone invalid """
+        self.success_signup["username"] = "jjjoonncom"
         self.success_signup["phone"] = "3363663"
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.success_signup),

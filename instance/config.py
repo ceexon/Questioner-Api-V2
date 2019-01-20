@@ -1,43 +1,45 @@
 """ API config File """
 import os
-DB_URL = os.getenv("DB_URL")
 
 
 class Config(object):
     """ Parent configuration class """
+
     DEBUG = False
     TESTING = False
+    Database_Url = os.getenv("Main_Database")
     SECRET_KEY = os.getenv("SECRET")
 
 
 class DevelopmentConfig(Config):
     """ Configuration for development environment """
     DEBUG = True
+    Database_Url = os.getenv("Main_Database")
 
 
 class StagingConfig(Config):
     """ Configuration for the staging environment """
     DEBUG = True
+    Database_Url = os.getenv("Test_Database")
 
 
 class TestingConfig(Config):
     """ Configuration for the testing environment """
     TESTING = True
     DEBUG = True
-    DB_TEST = os.getenv("DB_URL_TEST")
+    Database_Url = os.getenv("Test_Database")
 
 
 class ProductionConfig(Config):
     """ Configuration for the production environment """
     DEBUG = False
     TESTING = False
+    Database_Url = os.getenv("Main_Database")
 
 
 app_config = {
     'development': DevelopmentConfig,
-    'debug': DevelopmentConfig,
     'testing': TestingConfig,
     'staging': StagingConfig,
-    'production': ProductionConfig,
-    "DB_TEST": os.getenv("DB_URL_TEST")
+    'production': ProductionConfig
 }

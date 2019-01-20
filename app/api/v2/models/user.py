@@ -3,16 +3,19 @@ import datetime
 import psycopg2
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.api.v2.models import db_connect
+from app.api.v2.models.db_connect import connect_db
 
 TIME_NOW = datetime.datetime.utcnow()
+
+conn = connect_db()
+cur = conn.cursor()
 
 
 class User:
     """docstring for User"""
 
     def __init__(self, firstname=None, lastname=None, othername=None,
-                 username=None, email=None, phone=None, password=None, isAdmin=False):
+                 username=None, email=None, phone=None, password=None):
 
         self.fname = firstname
         self.lname = lastname
@@ -23,23 +26,22 @@ class User:
         self.phone = phone
         self.publicId = str(uuid.uuid4())
         self.now = TIME_NOW
-        self.isAdmin = isAdmin
-        if self.uname == "admin":
-            self.isAdmin = True
 
     def create_new_user(self):
         """ creates/adds a new user to the users table"""
         if not User.get_all_users():
             self.isAdmin = True
         query = """
-			INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date, isAdmin) VALUES(
-			'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}','{}')""".format(self.fname, self.lname, self.other, self.uname, self.email, self.phone, self.password, self.publicId, self.now, self.isAdmin)
-        db_connect.query_db_no_return(query)
+			INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date) VALUES(
+			'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}')""".format(self.fname, self.lname, self.other, self.uname, self.email, self.phone, self.password, self.publicId, self.now)
+        cur.execute(query)
+        conn.commit()
 
     @staticmethod
     def get_all_users():
         query = """ SELECT * FROM users """
-        all_users = db_connect.select_from_db(query)
+        all_users = cur.execute(query)
+        all_users = cur.fetchall()
         if not all_users:
             return None
 
@@ -61,8 +63,8 @@ class User:
             "phone": user_tuple[6],
             "password": user_tuple[7],
             "publicId": user_tuple[8],
-            "isAdmin": user_tuple[9],
-            "register_date": user_tuple[10]
+            "isAdmin": user_tuple[10],
+            "register_date": user_tuple[9]
         }
 
         return a_user
@@ -84,11 +86,13 @@ class User:
 			isAdmin = '{}'
 			WHERE publicId = {}
 		""".format(self.fname, self.lname, self.other, self.uname, self.email, self.password, self.phone, self.isAdmin, user_id)
-        db_connect.query_db_no_return(query)
+        cur.execute(query)
+        conn.commit()
 
     def delete_user(self, p_id):
         query = """ DELETE FROM requests WHERE public_id='{}' """.format(p_id)
-        db_connect.query_db_no_return(query)
+        cur.execute(query)
+        conn.commit()
 
     @staticmethod
     def query_username(username):
@@ -98,14 +102,18 @@ class User:
         query = """
         SELECT id, username, email, password, isAdmin FROM users
         WHERE users.username = '{}'""".format(username)
-        here = db_connect.select_from_db(query)
-        return here
+        user = cur.execute(query)
+        user = cur.fetchone()
+        return user
 
     @staticmethod
-    def create_admin_user():
-        adm_pid = str(uuid.uuid4())
+    def query_email(email):
+        """
+        Query the users store for a user
+        """
         query = """
-        INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date, isAdmin) VALUES('{}','{}','{}','{}','{}','{}','{}','{}','{}',"{}")
-        """.format("adm", "super", "user", "admin", "adm@super.men", "0712345678", "llLL77**", adm_pid, datetime.datetime.now(), "True")
-        print(query)
-        db_connect.query_db_no_return(query)
+        SELECT id, username, email, password, isAdmin FROM users
+        WHERE users.email = '{}'""".format(email)
+        the_user = cur.execute(query)
+        the_user = cur.fetchone()
+        return the_user
