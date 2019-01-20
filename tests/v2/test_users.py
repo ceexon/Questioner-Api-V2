@@ -1,7 +1,7 @@
+"""The user endpoints tests"""
 from app.api.v2.models.db_connect import db_init
 from instance.config import app_config
 from app import create_app
-"""The user endpoints tests"""
 import os
 import unittest
 import json
