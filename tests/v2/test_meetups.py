@@ -29,8 +29,13 @@ class MeetupTest(BaseTest):
         local_token = fetch_local_token["token"]
         return local_token
 
-    def test_meetups_creation(self):
+    def test_meetups(self):
         admin_token = self.admin_login()
+        """ test success get all meet records not found """
+        admin_token = self.admin_login()
+        response = self.client.get("api/v2/meetups",headers={"x-access-token":admin_token})
+        self.assertEqual(response.status_code, 404)
+
         """ test when token is missing """
         response = self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok), content_type="application/json")
@@ -82,8 +87,6 @@ class MeetupTest(BaseTest):
         self.assertEqual(created["error"], "You may be trying to duplicate a meetup, one with same time and location exists")
         self.assertEqual(response.status_code, 409)
 
-
-    def test_get_meetup(self):
         """ test success get all meet records admin """
         admin_token = self.admin_login()
         response = self.client.get("api/v2/meetups",headers={"x-access-token":admin_token})
