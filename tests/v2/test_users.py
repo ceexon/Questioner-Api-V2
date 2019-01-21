@@ -122,6 +122,17 @@ class UserSignUp(BaseTest):
         errorm = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(errorm["error"], "email field(s) can't be empty")
 
+        """Test signupfail empty email"""
+        fake = self.success_signup
+        fake["username"] = "Bakari"
+        fake["email"] = "jjj@djjd.dd"
+        response = self.client.post("api/v2/auth/signup",
+                                    data=json.dumps(fake),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 409)
+        errorm = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(errorm["error"], "user with email exists")
+
         """Test signupfail white_space email"""
         fake = self.success_signup
         fake["username"] = "Bakari"
