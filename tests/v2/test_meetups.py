@@ -148,7 +148,7 @@ class MeetupTest(BaseTest):
 
         """ test rsvp meetup success """
         response = self.client.post("api/v2/meetups/1/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"status":"y"}), content_type="application/json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 201)
 
         """ test try to meetup again"""
         response = self.client.post("api/v2/meetups/1/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"status":"y"}), content_type="application/json")

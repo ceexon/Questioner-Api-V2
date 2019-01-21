@@ -125,4 +125,4 @@ def meetup_rsvp(current_user, m_id):
         "meetup": meet_id,
         "topic": topic,
         "status": response
-    }})
+    }}),201
