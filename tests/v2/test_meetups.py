@@ -135,7 +135,7 @@ class MeetupTest(BaseTest):
         self.assertEqual(deleted["error"], "you canot delete a meetup")
         self.assertEqual(response.status_code, 403)
 
-        """ delete id out of range  """
+        """ delete id out of range or invalid """
         response = self.client.delete(
             "/api/v2/meetups/20",  headers={"x-access-token": admin_token})
         deleted = json.loads(response.data.decode("utf-8", secret))
