@@ -142,4 +142,4 @@ def delete_by_id(current_user, m_id):
     meetup = Meetup.delete_meetup(meet_id)
     if meetup:
         return jsonify({"status": 200, "message": "meetup deleted successfully"}), 200
-    return jsonify({"status": 404, "data": "Mettup with id {} not found".format(m_id)}), 404
+    return jsonify({"status": 404, "error": "Mettup with id {} not found".format(m_id)}), 404
