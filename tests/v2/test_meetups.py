@@ -110,11 +110,6 @@ class MeetupTest(BaseTest):
         response = self.client.get("api/v2/meetups/upcoming")
         self.assertEqual(response.status_code, 200)
 
-        """ test success get one record"""
-        admin_token = self.admin_login()
-        response = self.client.get("api/v2/meetups/1",headers={"x-access-token":admin_token})
-        self.assertEqual(response.status_code, 200)
-
         """ test success get one record failed """
         admin_token = self.admin_login()
         response = self.client.get("api/v2/meetups/y0y0")
@@ -127,6 +122,11 @@ class MeetupTest(BaseTest):
         admin_token = self.admin_login()
         response = self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok),headers={"x-access-token":admin_token} ,content_type="application/json")
+
+        """ test success get one record"""
+        admin_token = self.admin_login()
+        response = self.client.get("api/v2/meetups/1",headers={"x-access-token":admin_token})
+        self.assertEqual(response.status_code, 200)
 
         """ test rsvp no status """
         response = self.client.post("api/v2/meetups/1/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"mangos":"fruit"}), content_type="application/json")
