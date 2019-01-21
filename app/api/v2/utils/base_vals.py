@@ -71,14 +71,3 @@ def token_required(f):
             return jsonify({"error": "Token is invalid or expired"}), 401
         return f(current_user, *args, **kwargs)
     return decorated
-
-
-def get_name_from_token():
-    token = request.headers['x-access-token']
-    try:
-        username = jwt.decode(token, key)
-    except:
-        abort(make_response(
-            jsonify({"message": "Token is expired or invalid"}), 401))
-
-    return username
