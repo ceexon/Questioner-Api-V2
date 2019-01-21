@@ -21,11 +21,11 @@ class TestInitApp(BaseTest):
         self.assertEqual(result["error"],"Method not allowed")
         self.assertEqual(response.status_code, 405)
 
-        """ Test db_connect return conn"""
+        """ Test db_connect return conn for db to connect"""
         result = db_connect.connect_db()
         self.assertTrue(result)
 
-        """ Test db_connect drop table"""
+        """ Test db_connect drop tables if exist"""
         result = db_connect.drop_table_if_exists()
         self.assertTrue(result)
 
