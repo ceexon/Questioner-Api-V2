@@ -36,6 +36,16 @@ class BaseTest(unittest.TestCase):
             "password": "$$22BBkk"
         }
 
+        self.delete_after_login = {
+            "firstname": "HHHHH",
+            "lastname": "Kurland",
+            "othername": "missme",
+            "username": "missme",
+            "email": "missme@djjd.dd",
+            "phone": "+09778789847",
+            "password": "$$22BBkk"
+        }
+
         self.miss_signup = {
             "firstname": "HHHHH",
             "lastname": "Kurland",
@@ -60,7 +70,6 @@ class BaseTest(unittest.TestCase):
 
     def tearDown(self):
         delete_dummy_user(self.conn)
-
 
 class UserSignUp(BaseTest):
 
@@ -179,6 +188,18 @@ class UserSignUp(BaseTest):
         self.assertEqual(
             error_message["message"], 'lentgh less than 6, no digits, no uppercase letter, no symbol')
 
+        """Test signupfail bad password """
+        self.success_signup["username"] = "jjjoonncom"
+        self.success_signup["password"] = "JJ$$14OI"
+        response = self.client.post("api/v2/auth/signup",
+                                    data=json.dumps(self.success_signup),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 422)
+        error_message = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(error_message["error"], 'invalid password')
+        self.assertEqual(
+            error_message["message"], 'no lowercase letter')
+
         """Test signupfail bad phone invalid """
         self.success_signup["username"] = "jjjoonncom"
         self.success_signup["password"] = "jjjomKK**56"
@@ -201,6 +222,17 @@ class UserSignUp(BaseTest):
         error_message = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
             error_message["message"], 'phone number length invalid(11-13)')
+
+        """Test signupfail bad phone invalid alphas """
+        self.success_signup["username"] = "jjjoonncom"
+        self.success_signup["phone"] = "+737h636kk63"
+        response = self.client.post("api/v2/auth/signup",
+                                    data=json.dumps(self.success_signup),
+                                    content_type="application/json")
+        self.assertEqual(response.status_code, 422)
+        error_message = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(
+            error_message["message"], "phone number can only be digits after '+'")
 
         """Test signupfail bad phone invalid """
         self.success_signup["username"] = "jjjoonncom"
