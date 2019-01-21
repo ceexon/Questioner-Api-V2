@@ -132,15 +132,15 @@ class MeetupTest(BaseTest):
         response = self.client.delete(
             "/api/v2/meetups/2",  headers={"x-access-token": local_token})
         deleted = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(deleted["message"], "meetup deleted successfully")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(deleted["error"], "you canot delete a meetup")
+        self.assertEqual(response.status_code, 403)
 
         """ delete id out of range  """
         response = self.client.delete(
             "/api/v2/meetups/20",  headers={"x-access-token": admin_token})
         deleted = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(deleted["message"], "Mettup with id 20 not found")
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(deleted["error"], "Mettup with id 20 not found")
+        self.assertEqual(response.status_code, 404)
 
         """ delete successful """
         response = self.client.delete(
