@@ -138,11 +138,8 @@ def delete_by_id(current_user, m_id):
     adminStatus = logged_user[-1]
     if not adminStatus:
         return jsonify({"status": 403, "error": "you canot delete a meetup"}), 403
-    try:
-        m_id = int(m_id)
-    except ValueError:
-        return jsonify({"status": 400, "error": "invalid id format"}), 400
-    meetup = Meetup.delete_meetup(m_id)
+    meet_id = BaseValidation.confirm_ids(m_id)
+    meetup = Meetup.delete_meetup(meet_id)
     if meetup:
         return jsonify({"status": 200, "data": "meetup deleted successfully"}), 200
     return jsonify({"status": 404, "data": "Mettup with id {} not found".format(m_id)}), 404
