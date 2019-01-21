@@ -14,7 +14,7 @@ def create_meetup(current_user):
     logged_user = User.query_username(current_user)
     adminStatus = logged_user[-1]
     if not adminStatus:
-        return jsonify({"status": 403, "error": "you canot create a meetup"}), 403
+        return jsonify({"status": 403, "error": "you cannot create a meetup"}), 403
 
     try:
         meetup_data = request.get_json()
@@ -47,3 +47,31 @@ def create_meetup(current_user):
                               "location": location,
                               "meetup_date": happen_on,
                               "tags": tags}]}), 201
+
+@v_blue.route("/meetups", methods=["GET"])
+@token_required
+def get_all_meets_admin(current_user):
+    """ Fetches all meetups """
+    logged_user = User.query_username(current_user)
+    adminStatus = logged_user[-1]
+    if not adminStatus:
+        return jsonify({"status": 403, "error": "you canot access the meetups"}), 403
+    meetups = Meetup.get_all_meetups()
+    if not meetups:
+        abort(make_response(jsonify({
+            "status": 404,
+            "data": "no meetups scheduled yet"
+        }), 404))
+    return jsonify({"status": 200, "data": meetups}), 200
+
+
+@v_blue.route("/meetups/upcoming", methods=["GET"])
+def get_all_upcoming():
+    """ Fetches all meetups """
+    meetups = Meetup.get_all_meetups()
+    if not meetups:
+        abort(make_response(jsonify({
+            "status": 404,
+            "data": "no meetups scheduled yet"
+        }), 404))
+    return jsonify({"status": 200, "data": meetups}), 200
