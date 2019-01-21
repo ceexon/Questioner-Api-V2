@@ -20,7 +20,7 @@ def connect_db():
 
     except Exception as error:
         print('Unable to connect to database:', error)
-        sys.exit(1)
+        return ("database connection error")
     return conn
 
 
@@ -117,6 +117,7 @@ def create_admin(connect):
 def delete_dummy_user(connect):
     query = """
         DELETE FROM users WHERE username = 'toovor';
+        DELETE FROM users WHERE username = 'kurlandss';
         DELETE FROM meetups WHERE topic = 'Formless';
     """
     cur = connect.cursor()
