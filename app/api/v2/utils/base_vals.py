@@ -20,7 +20,7 @@ class BaseValidation:
         try:
             to_int = int(an_id)
             return to_int
-        except TypeError:
+        except (TypeError, ValueError):
             abort(make_response(
                 jsonify({"status": 400, "error": "invalid id, use integer"}), 400))
 
