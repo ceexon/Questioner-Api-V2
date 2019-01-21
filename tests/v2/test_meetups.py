@@ -31,9 +31,16 @@ class MeetupTest(BaseTest):
 
     def test_meetups(self):
         admin_token = self.admin_login()
-        """ test success get all meet records not found """
+        """ test fail to get all meet records not found """
         admin_token = self.admin_login()
         response = self.client.get("api/v2/meetups",headers={"x-access-token":admin_token})
+        self.assertEqual(response.status_code, 404)
+
+        """ test fail to get meet record by id """
+        admin_token = self.admin_login()
+        response = self.client.get("api/v2/meetups/1738")
+        not_found = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(not_found["error"], "Mettup with id 1738 not found")
         self.assertEqual(response.status_code, 404)
 
         """ test when token is missing """
@@ -102,3 +109,15 @@ class MeetupTest(BaseTest):
         """ test success get ucoming meetups """
         response = self.client.get("api/v2/meetups/upcoming")
         self.assertEqual(response.status_code, 200)
+
+        """ test success get one record"""
+        admin_token = self.admin_login()
+        response = self.client.get("api/v2/meetups/1",headers={"x-access-token":admin_token})
+        self.assertEqual(response.status_code, 200)
+
+        """ test success get one record failed """
+        admin_token = self.admin_login()
+        response = self.client.get("api/v2/meetups/y0y0")
+        error_message = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(error_message["error"], "invalid id, use integer")
+        self.assertEqual(response.status_code, 400)
