@@ -75,3 +75,12 @@ def get_all_upcoming():
             "data": "no meetups scheduled yet"
         }), 404))
     return jsonify({"status": 200, "data": meetups}), 200
+
+@v_blue.route("/meetups/<m_id>", methods=["GET"])
+def get_by_id(m_id):
+    m_id = BaseValidation.confirm_ids(m_id)
+    meetup = Meetup.get_meetup(m_id, "id")
+    if meetup:
+        meetup = Meetup.format_meet_info(meetup)
+        return jsonify({"status": 200, "data": meetup}), 200
+    return jsonify({"status": 404, "error": "Mettup with id {} not found".format(m_id)}), 404
