@@ -65,8 +65,6 @@ def token_required(f):
             abort(make_response(jsonify({"error": "Token is missing"}), 401))
         try:
             data = jwt.decode(token, KEY, algorithms="HS256")
-
-            print(data)
             current_user = data["username"]
 
         except (jwt.InvalidTokenError, jwt.ExpiredSignatureError, TypeError):
