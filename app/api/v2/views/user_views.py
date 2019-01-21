@@ -47,20 +47,13 @@ def user_signup():
     new_user.create_new_user()
     return jsonify({"status": 201, "message": "user created successfully"}), 201
 
-
-@v2_blue.route("/all", methods=["GET"])
-def all_users():
-    all_of = User.get_all_users()
-    return jsonify(all_of)
-
-
 @v2_blue.route("/login", methods=['POST'])
 def user_login():
     """ endpoint for users to sign in """
     try:
         log_data = request.get_json()
 
-    except TypeError:
+    except Exception:
         return jsonify({"status": 417, "error": "Expecting Login data!!"}), 417
 
     valid_login = UserValidation(log_data)
