@@ -73,13 +73,13 @@ class MeetupTest(BaseTest):
         self.assertEqual(created["error"], "tags field is required")
         self.assertEqual(response.status_code, 400)
 
-        """ test success meetup forbidden"""
+        """ test success meetup creation"""
         response = self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok),headers={"x-access-token":admin_token} ,content_type="application/json")
         created = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(response.status_code, 201)
 
-        """ test success meetup creation """
+        """ testforbidden meetup creation """
         local_token = self.sign_login_local()
         response = self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok),headers={"x-access-token":local_token} ,content_type="application/json")
@@ -87,7 +87,7 @@ class MeetupTest(BaseTest):
         self.assertEqual(not_created["error"],"you cannot create a meetup")
         self.assertEqual(response.status_code, 403)
 
-        """ test success meetup creation duplicate """
+        """ test meetup creation attempt to duplicate """
         response = self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok),headers={"x-access-token":admin_token} ,content_type="application/json")
         created = json.loads(response.data.decode("utf-8", secret))
@@ -110,14 +110,48 @@ class MeetupTest(BaseTest):
         response = self.client.get("api/v2/meetups/upcoming")
         self.assertEqual(response.status_code, 200)
 
-        """ test success get one record"""
-        admin_token = self.admin_login()
-        response = self.client.get("api/v2/meetups/1",headers={"x-access-token":admin_token})
-        self.assertEqual(response.status_code, 200)
-
         """ test success get one record failed """
         admin_token = self.admin_login()
         response = self.client.get("api/v2/meetups/y0y0")
         error_message = json.loads(response.data.decode("utf-8"))
         self.assertEqual(error_message["error"], "invalid id, use integer")
         self.assertEqual(response.status_code, 400)
+
+    def test_meetup_rsvp(self):
+        """ create meetup """
+        admin_token = self.admin_login()
+        response = self.client.post(
+            "api/v2/meetups", data=json.dumps(self.meetup_ok),headers={"x-access-token":admin_token} ,content_type="application/json")
+
+        """ test success get one record"""
+        admin_token = self.admin_login()
+        response = self.client.get("api/v2/meetups/1",headers={"x-access-token":admin_token})
+        self.assertEqual(response.status_code, 200)
+
+        """ test rsvp no status """
+        response = self.client.post("api/v2/meetups/1/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"mangos":"fruit"}), content_type="application/json")
+        error_message = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(error_message["error"], "Rsvp info is Missing")
+        self.assertEqual(response.status_code, 400)
+
+        """ test invalid meetup rsvp response"""
+        response = self.client.post("api/v2/meetups/1/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"status":"fruit"}), content_type="application/json")
+        error_message = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(error_message["error"], "invalid choice. Status response is limited to 'yes/maybe/no'")
+        self.assertEqual(response.status_code, 400)
+
+        """ test invalid meetup id"""
+        response = self.client.post("api/v2/meetups/89/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"status":"y"}), content_type="application/json")
+        error_message = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(error_message["error"], "Mettup with id 89 not found")
+        self.assertEqual(response.status_code, 404)
+
+        """ test rsvp meetup success """
+        response = self.client.post("api/v2/meetups/1/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"status":"y"}), content_type="application/json")
+        self.assertEqual(response.status_code, 201)
+
+        """ test try to meetup again"""
+        response = self.client.post("api/v2/meetups/1/rsvp", headers={"x-access-token":admin_token}, data=json.dumps({"status":"y"}), content_type="application/json")
+        error_message = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(error_message["error"], "RSVP is only once, try updating status")
+        self.assertEqual(response.status_code, 403)

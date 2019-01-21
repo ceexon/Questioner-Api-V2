@@ -29,16 +29,10 @@ class UserValidation(BaseValidation):
             if not phone[1:].isdigit():
                 abort(make_response(jsonify({"status": 422,
                                              "message": "phone number can only be digits after '+'"}), 422))
-            else:
-                return 1
-
         elif phone[0].isdigit() and phone.isdigit():
             if not len(phone) == 10:
                 abort(make_response(
                     jsonify({"status": 422, "message": "phone number length invalid(10)"}), 422))
-            else:
-                return 1
-
         else:
             abort(make_response(jsonify({"status": 422,
                                          "message": "phone number can start with '+' and have digits"}), 422))
@@ -69,7 +63,6 @@ class UserValidation(BaseValidation):
         if not any(c in symbols for c in pwd):
             error = "no symbol"
             missing.append(error)
-
         if missing:
             missing = ', '.join(missing)
             abort(make_response(jsonify({"status": 422, "error": "invalid password",
