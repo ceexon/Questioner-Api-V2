@@ -8,6 +8,7 @@ from instance.config import app_config
 from app import create_app
 secret = os.getenv("SECRET")
 
+
 class BaseTest(unittest.TestCase):
     """
     The base class for seeting up the user tests and tearing down
@@ -62,6 +63,13 @@ class BaseTest(unittest.TestCase):
             "tags": ["#meetme", "#works well"]
         }
 
+        self.meetup_to_delete = {
+            "topic": "Formlessly",
+            "location": "Nairobi Kenya",
+            "happen_on": "09/04/2029/1600HRS",
+            "tags": ["#meetme", "#works well"]
+        }
+
         self.meetup_no_topic = {
             "location": "Nairobi ",
             "happen_on": "09/04/2019/1600HRS",
@@ -70,6 +78,7 @@ class BaseTest(unittest.TestCase):
 
     def tearDown(self):
         delete_dummy_user(self.conn)
+
 
 class UserSignUp(BaseTest):
 
@@ -101,7 +110,8 @@ class UserSignUp(BaseTest):
         self.assertEqual(response.status_code, 204)
 
         """user signup no data """
-        response = self.client.post("api/v2/auth/signup", content_type="application/json")
+        response = self.client.post(
+            "api/v2/auth/signup", content_type="application/json")
         self.assertEqual(response.status_code, 204)
 
         """Test username taken """
@@ -151,7 +161,8 @@ class UserSignUp(BaseTest):
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
         errorm = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(errorm["error"], "email field(s) can't be white space only")
+        self.assertEqual(
+            errorm["error"], "email field(s) can't be white space only")
 
         """Test signupfail bad email format """
         signup_email = self.success_signup
