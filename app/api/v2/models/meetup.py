@@ -84,3 +84,44 @@ class Meetup:
             conn.commit()
             return True
         return False
+
+class Rsvp(Meetup):
+    def __init__(self, user_id, meet_id, meet_topic, rsvp_status):
+        self.user = user_id
+        self.meet = meet_id
+        self.topic = meet_topic
+        self.status = rsvp_status
+        self.responded_at = datetime.datetime.utcnow()
+
+    def save_rsvp(self):
+        query = """
+            INSERT INTO rsvp(user_id,meetup_id,meetup_topic,value,responded_at)
+            values('{}','{}','{}','{}','{}')
+        """.format(self.user, self.meet, self.topic, self.status, self.responded_at)
+        cur.execute(query)
+        conn.commit()
+
+    def update_rsvp(self):
+        pass
+
+    def format_rsvp(self, rsvp_tuple):
+        rsvp = {
+            "id": rsvp_tuple[0],
+            "user_id": rsvp_tuple[1],
+            "meetup_id": rsvp_tuple[2],
+            "topic": rsvp_tuple[3],
+            "status": rsvp_tuple[4],
+            "responded_at": rsvp_tuple[5]
+        }
+        return rsvp
+
+    @staticmethod
+    def get_rsvp_by(meet_id, search_by):
+        """ get a specific rsvp meetup using its id """
+        query = """
+        SELECT user_id FROM rsvp
+        WHERE {} = '{}'""".format(search_by, meet_id)
+
+        cur.execute(query)
+        meetup = cur.fetchall()
+        return meetup
