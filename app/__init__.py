@@ -4,7 +4,8 @@ from flask import Flask, Blueprint, jsonify
 from instance.config import app_config
 from app.api.v2.views.user_views import v2_blue
 from app.api.v2.views.meet_views import v_blue
-from app.api.v2.models.db_connect import connect_db, db_init, create_admin
+from app.api.v2.views.question_views import q_blue
+from app.api.v2.models.db_connect import connect_db, db_init, create_admin, drop_tables
 
 
 def create_app(name_conf):
@@ -22,6 +23,7 @@ def create_app(name_conf):
 
     my_app.register_blueprint(v2_blue, url_prefix="/api/v2/auth")
     my_app.register_blueprint(v_blue, url_prefix="/api/v2")
+    my_app.register_blueprint(q_blue, url_prefix="/api/v2")
 
     @my_app.errorhandler(404)
     def page_not_found(error):

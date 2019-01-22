@@ -21,6 +21,7 @@ class BaseTest(unittest.TestCase):
         self.app = create_app("testing")
         self.app_context = self.app.app_context()
         self.app_context.push()
+        conn = connect_db()
         self.conn = connect_db()
         db_init(self.conn)
         create_admin(self.conn)
@@ -56,13 +57,6 @@ class BaseTest(unittest.TestCase):
             "password": "$$22BBkk"
         }
 
-        self.meetup_ok = {
-            "topic": "Formless",
-            "location": "Nairobi ",
-            "happen_on": "09/04/2019/1600HRS",
-            "tags": ["#meetme", "#works well"]
-        }
-
         self.meetup_to_delete = {
             "topic": "Formlessly",
             "location": "Nairobi Kenya",
@@ -70,10 +64,23 @@ class BaseTest(unittest.TestCase):
             "tags": ["#meetme", "#works well"]
         }
 
+        self.meetup_ok = {
+            "topic": "Formless",
+            "location": "Nairobi ",
+            "happen_on": "09/04/2019/1600HRS",
+            "tags": ["#meetme", "#works well"]
+        }
+
         self.meetup_no_topic = {
             "location": "Nairobi ",
             "happen_on": "09/04/2019/1600HRS",
             "tags": ["#meetme", "#works well"]
+        }
+
+        self.question_ask = {
+            "meetup": "3",
+            "title": "my question",
+            "body": "my description"
         }
 
     def tearDown(self):
