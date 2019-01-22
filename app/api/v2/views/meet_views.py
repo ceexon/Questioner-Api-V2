@@ -48,6 +48,7 @@ def create_meetup(current_user):
                               "meetup_date": happen_on,
                               "tags": tags}]}), 201
 
+
 @v_blue.route("/meetups", methods=["GET"])
 @token_required
 def get_all_meets_admin(current_user):
@@ -76,6 +77,7 @@ def get_all_upcoming():
         }), 404))
     return jsonify({"status": 200, "data": meetups}), 200
 
+
 @v_blue.route("/meetups/<m_id>", methods=["GET"])
 def get_by_id(m_id):
     m_id = BaseValidation.confirm_ids(m_id)
@@ -84,6 +86,7 @@ def get_by_id(m_id):
         meetup = Meetup.format_meet_info(meetup)
         return jsonify({"status": 200, "data": meetup}), 200
     return jsonify({"status": 404, "error": "Mettup with id {} not found".format(m_id)}), 404
+
 
 @v_blue.route("/meetups/<m_id>/rsvp", methods=["POST"])
 @token_required
@@ -96,8 +99,8 @@ def meetup_rsvp(current_user, m_id):
     try:
         status_info = request.get_json()
         status = status_info["status"]
-    except (Exception, ValueError, KeyError) as error:
-        return jsonify({"status": 400, "error":"Rsvp info is Missing"}), 400
+    except (Exception, ValueError, KeyError):
+        return jsonify({"status": 400, "error": "Rsvp info is Missing"}), 400
     meet_id = BaseValidation.confirm_ids(m_id)
     meetup = Meetup.get_meetup(meet_id, "id")
     if not meetup:
@@ -125,4 +128,18 @@ def meetup_rsvp(current_user, m_id):
         "meetup": meet_id,
         "topic": topic,
         "status": response
-    }}),201
+    }}), 201
+
+
+@v_blue.route("/meetups/<m_id>", methods=["DELETE"])
+@token_required
+def delete_by_id(current_user, m_id):
+    logged_user = User.query_username(current_user)
+    adminStatus = logged_user[-1]
+    if not adminStatus:
+        return jsonify({"status": 403, "error": "you canot delete a meetup"}), 403
+    meet_id = BaseValidation.confirm_ids(m_id)
+    meetup = Meetup.delete_meetup(meet_id)
+    if meetup:
+        return jsonify({"status": 200, "message": "meetup deleted successfully"}), 200
+    return jsonify({"status": 404, "error": "Mettup with id {} not found".format(m_id)}), 404
