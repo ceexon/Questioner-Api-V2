@@ -3,7 +3,7 @@
 import os
 import datetime
 import jwt
-from flask import Blueprint, request, jsonify,abort,make_response
+from flask import Blueprint, request, jsonify, abort, make_response
 from werkzeug.security import check_password_hash
 from ..utils.base_vals import BaseValidation, token_required
 from ..utils.user_vals import UserValidation
@@ -18,7 +18,7 @@ def user_signup():
     try:
         user_data = request.get_json()
         if not user_data:
-            raise ValueErro("Missing signup data")
+            raise ValueError("Missing signup data")
     except Exception:
         return jsonify({"status": 204, "error": "No data was given"}), 204
     valid_user = UserValidation(user_data)
@@ -46,6 +46,7 @@ def user_signup():
                     phone, password)
     new_user.create_new_user()
     return jsonify({"status": 201, "message": "user created successfully"}), 201
+
 
 @v2_blue.route("/login", methods=['POST'])
 def user_login():
