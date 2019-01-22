@@ -22,7 +22,6 @@ class BaseTest(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         conn = connect_db()
-        drop_tables(conn)
         self.conn = connect_db()
         db_init(self.conn)
         create_admin(self.conn)
