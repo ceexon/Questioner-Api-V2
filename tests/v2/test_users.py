@@ -78,7 +78,7 @@ class BaseTest(unittest.TestCase):
         }
 
         self.question_ask = {
-            "meetup": "2",
+            "meetup": "3",
             "title": "my question",
             "body": "my description"
         }
