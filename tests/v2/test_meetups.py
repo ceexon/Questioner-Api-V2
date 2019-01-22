@@ -160,6 +160,7 @@ class MeetupTest(BaseTest):
         response = self.client.get(
             "api/v2/meetups/1", headers={"x-access-token": admin_token})
         self.assertEqual(response.status_code, 200)
+        print(json.loads(response.data.decode("utf-8")))
 
         """ test rsvp no status """
         response = self.client.post("api/v2/meetups/1/rsvp", headers={
