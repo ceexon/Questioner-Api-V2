@@ -114,6 +114,7 @@ def create_admin(connect):
     cur.execute(query)
     connect.commit()
 
+
 def delete_dummy_user(connect):
     query = """
         DELETE FROM users WHERE username = 'toovor';
@@ -141,3 +142,5 @@ def drop_tables(connect):
     for query in queries:
         cur.execute(query)
     connect.commit()
+    cur.close()
+    connect.close()
