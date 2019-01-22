@@ -6,6 +6,7 @@ The questioner app is a web that allows users who are attendees of a meetup to b
 
 [![Build Status](https://travis-ci.org/kburudi/Questioner-Api-V2.svg?branch=develop)](https://travis-ci.org/kburudi/Questioner-Api-V2)
 [![Coverage Status](https://coveralls.io/repos/github/kburudi/Questioner-Api-V2/badge.svg?branch=develop)](https://coveralls.io/github/kburudi/Questioner-Api-V2?branch=develop)
+[![Maintainability](https://api.codeclimate.com/v1/badges/31315b7acf1b65ad6526/maintainability)](https://codeclimate.com/github/kburudi/Questioner-Api-V2/maintainability)
 
 ## What is required
 
@@ -92,3 +93,4 @@ Trevor Kurland
 
 1. Andela-Workshops
 2. Team-mates
+3. Andela Bootcamp
