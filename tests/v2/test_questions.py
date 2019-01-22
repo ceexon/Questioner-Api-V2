@@ -18,12 +18,16 @@ class TestQuestions(BaseTest):
         meetup = self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok), headers={"x-access-token": self.admin_login()}, content_type="application/json")
         get_meetup = json.loads(meetup.data.decode("utf-8"))
-        self.question_ask["id"] = 50
-        response = self.client.post("/api/v2/questions", data=json.dumps(self.question_ask), headers={
+        question_not_found = {
+            "meetup": "30",
+            "title": "my question",
+            "body": "my description"
+        }
+        response = self.client.post("/api/v2/questions", data=json.dumps(question_not_found), headers={
             "x-access-token": self.admin_login()}, content_type="application/json")
         result = json.loads(response.data.decode("utf-8"), secret)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(result["error"], "Mettup with id 50 not found")
+        self.assertEqual(result["error"], "Mettup with id 30 not found")
 
         """ test a successful post """
         response = self.client.post("/api/v2/questions", data=json.dumps(self.question_ask), headers={
