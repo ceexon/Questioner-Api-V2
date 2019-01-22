@@ -56,13 +56,6 @@ class BaseTest(unittest.TestCase):
             "password": "$$22BBkk"
         }
 
-        self.meetup_ok = {
-            "topic": "Formless",
-            "location": "Nairobi ",
-            "happen_on": "09/04/2019/1600HRS",
-            "tags": ["#meetme", "#works well"]
-        }
-
         self.meetup_to_delete = {
             "topic": "Formlessly",
             "location": "Nairobi Kenya",
@@ -70,10 +63,23 @@ class BaseTest(unittest.TestCase):
             "tags": ["#meetme", "#works well"]
         }
 
+        self.meetup_ok = {
+            "topic": "Formless",
+            "location": "Nairobi ",
+            "happen_on": "09/04/2019/1600HRS",
+            "tags": ["#meetme", "#works well"]
+        }
+
         self.meetup_no_topic = {
             "location": "Nairobi ",
             "happen_on": "09/04/2019/1600HRS",
             "tags": ["#meetme", "#works well"]
+        }
+
+        self.question_ask = {
+            "meetup": "2",
+            "title": "my question",
+            "body": "my description"
         }
 
     def tearDown(self):
