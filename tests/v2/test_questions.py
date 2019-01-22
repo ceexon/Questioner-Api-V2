@@ -11,12 +11,11 @@ class TestQuestions(MeetupTest):
         """ test ask fails meetup id not found """
         self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok), headers={"x-access-token": self.admin_login()}, content_type="application/json")
-        self.question_ask["id"] = 300
         response = self.client.post("/api/v2/questions", data=json.dumps(self.question_ask), headers={
             "x-access-token": self.sign_login_local()}, content_type="application/json")
         result = json.loads(response.data.decode("utf-8"), secret)
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(result["error"], "Mettup with id 300 not found")
+        self.assertEqual(result["error"], "Mettup with id 2 not found")
 
         """ test a successful post """
         self.question_ask["id"] = 3
