@@ -37,7 +37,7 @@ class DatabaseConnection:
         fetchedRow = self.cur.fetchone()
         return fetchedRow
 
-    def save_incoming_data(self, query):
+    def save_incoming_data_or_updates(self, query):
         """ saves data passed as a query to the stated table """
         self.cur.execute(query)
         self.conn.commit()
