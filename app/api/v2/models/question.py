@@ -58,11 +58,12 @@ class Voting(db_conn):
             return 0
 
     @staticmethod
-    def get_from_questions(que_id):
+    def get_from_questions(quiz_id):
         """ get a specific question using its id """
         query = """
         SELECT * FROM questions
-        WHERE id = '{}'""".format(que_id)
+        WHERE id = '{}'""".format(quiz_id)
+        print(query)
         question = db_conn.fetch_single_data_row(db_conn, query)
         return question
 
@@ -74,3 +75,20 @@ class Voting(db_conn):
         WHERE user_id = '{}'""".format(user_id)
         questionId = db_conn.fetch_single_data_row(db_conn, query)
         return questionId
+
+
+class Comment(db_conn):
+    def __init__(self, newComment):
+        self.user = newComment[0]
+        self.question = newComment[1]
+        self.title = newComment[2]
+        self.body = newComment[3]
+        self.comment = newComment[4]
+        self.comment_at = datetime.datetime.utcnow()
+
+    def post_a_comment(self):
+        query = """
+        INSERT INTO comments (user_id, question_id, question_title, question_body, comment, comment_at)
+        VALUES('{}', '{}', '{}', '{}', '{}', '{}')
+        """.format(self.user, self.question, self.title, self.body, self.comment, self.comment_at)
+        self.save_incoming_data_or_updates(query)
