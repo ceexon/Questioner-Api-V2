@@ -64,7 +64,6 @@ def voting_action(current_user, quiz_id, upvote, downvote):
     upvote = upvote
     user_id = user_id
     all_init_votes = Voting.get_initial_vote_count(question_id)
-    print(all_init_votes)
     if all_init_votes:
         all_init_votes = all_init_votes[0]
     else:
@@ -121,7 +120,6 @@ def comment_on_question(current_user, quiz_id):
         abort(make_response(jsonify({
             "status": 404,
             "error": "Question with id {} not found".format(quiz_id)}), 400))
-    print(question)
     user_id = logged_user[0]
     questionId = question[0]
     title = question[3]

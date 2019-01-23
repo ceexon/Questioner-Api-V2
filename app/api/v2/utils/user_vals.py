@@ -22,13 +22,10 @@ class UserValidation(BaseValidation):
 
     def check_phone_length(self):
         phone = self.data["phone"]
-        print("checking")
         if phone[0] == "+" and not len(phone) in range(11, 14):
-            print("out here")
             abort(make_response(
                 jsonify({"status": 422, "message": "phone number length invalid(11-13)"}), 422))
         elif phone[0].isdigit() and phone.isdigit():
-            print("in here")
             if not len(phone) == 10:
                 abort(make_response(
                     jsonify({"status": 422, "message": "phone number length invalid(10)"}), 422))

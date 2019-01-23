@@ -63,7 +63,6 @@ class Voting(db_conn):
         query = """
         SELECT * FROM questions
         WHERE id = '{}'""".format(quiz_id)
-        print(query)
         question = db_conn.fetch_single_data_row(db_conn, query)
         return question
 
