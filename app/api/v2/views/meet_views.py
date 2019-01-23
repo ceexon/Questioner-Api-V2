@@ -104,7 +104,9 @@ def meetup_rsvp(current_user, m_id):
     meet_id = BaseValidation.confirm_ids(m_id)
     meetup = Meetup.get_meetup(meet_id, "id")
     if not meetup:
-        return jsonify({"status": 404, "error": "Mettup with id {} not found".format(m_id)}), 404
+        return jsonify({
+            "status": 404,
+            "error": "Mettup with id {} not found".format(m_id)}), 404
     validate = BaseValidation(status_info)
     validate.check_missing_fields(["status"])
     validate.check_field_values_no_whitespace(["status"])
@@ -116,7 +118,9 @@ def meetup_rsvp(current_user, m_id):
     elif response == "maybe":
         response = "MAYBE"
     else:
-        return jsonify({"status": 400, "error": "invalid choice. Status response is limited to 'yes/maybe/no'"}), 400
+        return jsonify({
+            "status": 400,
+            "error": "invalid choice. Status response is limited to 'yes/maybe/no'"}), 400
     rsvped = Rsvp.get_rsvp_by(meet_id, "meetup_id")
     if (user_id,) in rsvped:
         return jsonify({"status": 403, "error": "RSVP is only once, try updating status"}), 403
