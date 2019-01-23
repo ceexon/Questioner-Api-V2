@@ -5,6 +5,7 @@ from functools import wraps
 import jwt
 from flask import jsonify, abort, make_response, request
 from ..models import db_connect
+from ..models.user import LogoutBlacklist
 
 KEY = os.getenv("SECRET")
 
@@ -64,7 +65,14 @@ def token_required(f):
         token = None
         if "x-access-token" in request.headers:
             token = request.headers['x-access-token']
-        if not token:
+            used_token = LogoutBlacklist.get_blacklisted(token)
+            print(used_token)
+            if used_token:
+                abort(make_response(jsonify({
+                    "status": 403,
+                    "error": "Token is unusable",
+                    "message": "please login again to continue"}), 403))
+        else:
             abort(make_response(jsonify({"error": "Token is missing"}), 401))
         try:
             data = jwt.decode(token, KEY, algorithms="HS256")
