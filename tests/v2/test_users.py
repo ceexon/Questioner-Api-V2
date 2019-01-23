@@ -3,7 +3,6 @@ import os
 import unittest
 import json
 import psycopg2
-from app.api.v2.models.db_connect import db_init, drop_tables, create_admin, connect_db, delete_dummy_user
 from instance.config import app_config
 from app import create_app
 secret = os.getenv("SECRET")
@@ -19,13 +18,6 @@ class BaseTest(unittest.TestCase):
         set the variables before each test
         """
         self.app = create_app("testing")
-        self.app_context = self.app.app_context()
-        self.app_context.push()
-        conn = connect_db()
-        self.conn = connect_db()
-        db_init(self.conn)
-        create_admin(self.conn)
-
         self.client = self.app.test_client()
 
         self.success_signup = {
@@ -83,8 +75,14 @@ class BaseTest(unittest.TestCase):
             "body": "my description"
         }
 
+        self.right_meetup_id_added = {
+            "meetup": "1",
+            "title": "my question",
+            "body": "my description"
+        }
+
     def tearDown(self):
-        delete_dummy_user(self.conn)
+        pass
 
 
 class UserSignUp(BaseTest):
