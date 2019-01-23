@@ -32,7 +32,7 @@ def ask_question(current_user):
     user_id = logged_user[0]
     quest_title = que_data["title"]
     quest_body = que_data["body"]
-    new_question = Question(user_id, meetup, quest_title, quest_body)
+    new_question = Question([user_id, meetup, quest_title, quest_body])
     new_question.post_a_question()
     return jsonify({"status": 201, "message": "question asked succssfully", "data": {
         "user": user_id,
@@ -64,8 +64,8 @@ def voting_action(current_user, quiz_id, upvote, downvote):
         all_init_votes = all_init_votes[0]
     else:
         all_init_votes = all_init_votes
-    new_vote = Voting(user_id, meetup, question_id,
-                      upvote, downvote, all_init_votes)
+    new_vote = Voting([user_id, meetup, question_id,
+                       upvote, downvote, all_init_votes])
     new_vote.update_to_votes()
     return [meetup, title, body, all_init_votes]
 

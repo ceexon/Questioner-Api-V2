@@ -42,8 +42,8 @@ def user_signup():
     valid_user.validate_password()
     valid_user.validate_phone()
     valid_user.validate_names()
-    new_user = User(firstname, lastname, othername, username, email,
-                    phone, password)
+    new_user = User([firstname, lastname, othername, username, email, password,
+                     phone])
     new_user.create_new_user()
     return jsonify({"status": 201, "message": "user created successfully"}), 201
 

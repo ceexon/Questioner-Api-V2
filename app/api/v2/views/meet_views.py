@@ -39,7 +39,7 @@ def create_meetup(current_user):
 
     MeetValid.prevent_duplication(meetup_data)
     user_id = logged_user[0]
-    meetup = Meetup(topic, location, happen_on, tags, user_id)
+    meetup = Meetup([topic, happen_on, location, tags, user_id])
     meetup.save_meetup()
 
     return jsonify({"status": 201,
@@ -122,7 +122,7 @@ def meetup_rsvp(current_user, m_id):
         return jsonify({"status": 403, "error": "RSVP is only once, try updating status"}), 403
     meetup = Meetup.format_meet_info(meetup)
     topic = meetup["topic"]
-    rsvp = Rsvp(user_id, meet_id, topic, status)
+    rsvp = Rsvp([user_id, meet_id, topic, status])
     rsvp.save_rsvp()
     return jsonify({"status": 201, "message": "response received", "data": {
         "meetup": meet_id,
