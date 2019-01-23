@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, abort, make_response
 from ..models.meetup import Meetup
 from ..models.user import User
-from ..models.question import Question, Voting
+from ..models.question import Question, Voting, Comment
 from ..utils.base_vals import BaseValidation, token_required
 from ..utils.question_vals import QuestionValid
 
@@ -14,6 +14,7 @@ def ask_question(current_user):
     logged_user = User.query_username(current_user)
     try:
         que_data = request.get_json()
+
     except TypeError as error:
         return jsonify({"status": 400, "message": "no data was found", "error": error}), 400
     valid_que = QuestionValid(que_data)
@@ -52,6 +53,10 @@ def voting_action(current_user, quiz_id, upvote, downvote):
         abort(make_response(
             jsonify({"status": 403, "error": "You have already voted, try updating"}), 403))
     question = Voting.get_from_questions(question_id)
+    if not question:
+        abort(make_response(jsonify({
+            "status": 404,
+            "error": "Question with id {} not found".format(quiz_id)}), 400))
     meetup = question[2]
     title = question[3]
     body = question[4]
@@ -91,4 +96,41 @@ def downvote_question(current_user, quiz_id):
         "title": downvoted[1],
         "body": downvoted[2],
         "votes": str(downvoted[3]) + " - 1"
+    }}), 201
+
+
+@q_blue.route('/questions/<quiz_id>/comments', methods=["POST"])
+@token_required
+def comment_on_question(current_user, quiz_id):
+    logged_user = User.query_username(current_user)
+    try:
+        userComment = request.get_json()
+        if not userComment:
+            abort(make_response(
+                jsonify({"status": 400, "error": "Missing comment data"}), 400))
+        validate = BaseValidation(userComment)
+        validate.check_missing_fields(["comment"])
+        validate.check_field_values_no_whitespace(["comment"])
+        comment = userComment["comment"]
+    except Exception:
+        abort(make_response(
+            jsonify({"status": 400, "error": "comment data is required"}), 400))
+    question_id = QuestionValid.confirm_ids(quiz_id)
+    question = Voting.get_from_questions(question_id)
+    if not question:
+        abort(make_response(jsonify({
+            "status": 404,
+            "error": "Question with id {} not found".format(quiz_id)}), 400))
+    print(question)
+    user_id = logged_user[0]
+    questionId = question[0]
+    title = question[3]
+    body = question[4]
+    new_commment = Comment([user_id, questionId, title, body, comment])
+    new_commment.post_a_comment()
+    return jsonify({"status": 201, "data": {
+        "question": questionId,
+        "title": title,
+        "body": body,
+        "comment": comment
     }}), 201
