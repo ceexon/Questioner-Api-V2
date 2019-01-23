@@ -83,7 +83,13 @@ def set_up_tables():
           downvotes INTEGER NOT NULL DEFAULT 0,
           votes INTEGER NOT NULL DEFAULT 0,
           voted_at TIMESTAMP);"""
-    return [create_comment_table, create_meetups_table, create_questions_table, create_rsvp_table, create_users_table, create_votes_table]
+
+    create_logout_blacklist = """
+           CREATE TABLE IF NOT EXISTS blacklists (
+               user_id INTEGER NOT NULL,
+               token VARCHAR(300) NOT NULL
+           );"""
+    return [create_comment_table, create_meetups_table, create_questions_table, create_rsvp_table, create_users_table, create_votes_table, create_logout_blacklist]
 
 
 def create_admin(connect):
