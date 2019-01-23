@@ -20,20 +20,28 @@ class UserValidation(BaseValidation):
             abort(make_response(jsonify({"status": 422, "message": "first, last and other name can only contain letters",
                                          "error": "invalid naming format"}), 422))
 
-    def validate_phone(self):
+    def check_phone_length(self):
         phone = self.data["phone"]
-        if phone[0] == "+":
-            if not len(phone) in range(11, 14):
-                abort(make_response(
-                    jsonify({"status": 422, "message": "phone number length invalid(11-13)"}), 422))
-            if not phone[1:].isdigit():
-                abort(make_response(jsonify({"status": 422,
-                                             "message": "phone number can only be digits after '+'"}), 422))
+        print("checking")
+        if phone[0] == "+" and not len(phone) in range(11, 14):
+            print("out here")
+            abort(make_response(
+                jsonify({"status": 422, "message": "phone number length invalid(11-13)"}), 422))
         elif phone[0].isdigit() and phone.isdigit():
+            print("in here")
             if not len(phone) == 10:
                 abort(make_response(
                     jsonify({"status": 422, "message": "phone number length invalid(10)"}), 422))
-        else:
+
+    def validate_phone(self):
+        phone = self.data["phone"]
+        self.check_phone_length()
+        if phone[0] == "+" and not phone[1:].isdigit():
+            abort(make_response(jsonify({"status": 422,
+                                         "message": "phone number can only be digits after '+'"}), 422))
+        elif (phone[0] == "+" and phone[1:].isdigit()) or phone.isdigit():
+            phone = True
+        elif not phone[0].isdigit() or not phone[0] == "+":
             abort(make_response(jsonify({"status": 422,
                                          "message": "phone number can start with '+' and have digits"}), 422))
 

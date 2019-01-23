@@ -1,21 +1,18 @@
 """ db meetup models """
 import datetime
-from app.api.v2.models.db_connect import connect_db
-
-conn = connect_db()
-cur = conn.cursor()
+from app.api.v2.models.database import DatabaseConnection as db_conn
 
 
-class Meetup:
+class Meetup(db_conn):
     """ manipulating meetup data """
 
-    def __init__(self, topic, location, happen_on, tags, user_id):
+    def __init__(self, theMeetup):
         """ meetup variables mains """
-        self.topic = topic
-        self.happen_on = happen_on
-        self.location = location
-        self.tags = tags
-        self.user_id = user_id
+        self.topic = theMeetup[0]
+        self.happen_on = theMeetup[1]
+        self.location = theMeetup[2]
+        self.tags = theMeetup[3]
+        self.user_id = theMeetup[4]
         self.created_on = datetime.datetime.now()
 
     def save_meetup(self):
@@ -26,8 +23,7 @@ class Meetup:
         INSERT INTO meetups(topic, location, happen_on, tags, created_on, user_id) VALUES(
             '{}', '{}', '{}', ARRAY{}, '{}', '{}'
         )""".format(self.topic, self.location, self.happen_on, self.tags, self.created_on, self.user_id)
-        cur.execute(query)
-        conn.commit()
+        self.save_incoming_data_or_updates(query)
 
     @staticmethod
     def get_all_meetups():
@@ -37,8 +33,8 @@ class Meetup:
         query = """
         SELECT * FROM meetups
         """
-        cur.execute(query)
-        meetups = cur.fetchall()
+
+        meetups = db_conn.fetch_all_tables_rows(db_conn, query)
         data = []
         for meet in meetups:
             meetup = Meetup.format_meet_info(meet)
@@ -66,8 +62,7 @@ class Meetup:
         SELECT * FROM meetups
         WHERE {} = '{}'""".format(serach_by, meet_id)
 
-        cur.execute(query)
-        meetup = cur.fetchone()
+        meetup = db_conn.fetch_single_data_row(db_conn, query)
         return meetup
 
     @staticmethod
@@ -79,18 +74,17 @@ class Meetup:
             query = """
             DELETE FROM meetups
             WHERE meetups.id = '{}'""".format(meet_id)
-
-            cur.execute(query)
-            conn.commit()
+            db_conn.save_incoming_data_or_updates(db_conn, query)
             return True
         return False
 
+
 class Rsvp(Meetup):
-    def __init__(self, user_id, meet_id, meet_topic, rsvp_status):
-        self.user = user_id
-        self.meet = meet_id
-        self.topic = meet_topic
-        self.status = rsvp_status
+    def __init__(self, rsvpToPost):
+        self.user = rsvpToPost[0]
+        self.meet = rsvpToPost[0]
+        self.topic = rsvpToPost[0]
+        self.status = rsvpToPost[0]
         self.responded_at = datetime.datetime.utcnow()
 
     def save_rsvp(self):
@@ -98,11 +92,7 @@ class Rsvp(Meetup):
             INSERT INTO rsvp(user_id,meetup_id,meetup_topic,value,responded_at)
             values('{}','{}','{}','{}','{}')
         """.format(self.user, self.meet, self.topic, self.status, self.responded_at)
-        cur.execute(query)
-        conn.commit()
-
-    def update_rsvp(self):
-        pass
+        self.save_incoming_data_or_updates(query)
 
     def format_rsvp(self, rsvp_tuple):
         rsvp = {
@@ -122,6 +112,5 @@ class Rsvp(Meetup):
         SELECT user_id FROM rsvp
         WHERE {} = '{}'""".format(search_by, meet_id)
 
-        cur.execute(query)
-        meetup = cur.fetchall()
+        meetup = db_conn.fetch_all_tables_rows(db_conn, query)
         return meetup

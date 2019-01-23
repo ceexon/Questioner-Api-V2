@@ -1,17 +1,14 @@
 """ db question models """
 import datetime
-from app.api.v2.models.db_connect import connect_db
-
-conn = connect_db()
-cur = conn.cursor()
+from app.api.v2.models.database import DatabaseConnection as db_conn
 
 
-class Question:
-    def __init__(self, user_id, meetup_id, quest_title, quest_body):
-        self.user = user_id
-        self.meeetup = meetup_id
-        self.title = quest_title
-        self.body = quest_body
+class Question(db_conn):
+    def __init__(self, theQuestion):
+        self.user = theQuestion[0]
+        self.meeetup = theQuestion[1]
+        self.title = theQuestion[2]
+        self.body = theQuestion[3]
         self.asked_at = datetime.datetime.utcnow()
 
     def post_a_question(self):
@@ -19,8 +16,7 @@ class Question:
         INSERT INTO questions(user_id,meetup_id,title,body,created_on)
         VALUES('{}','{}','{}','{}','{}')
         """.format(self.user, self.meeetup, self.title, self.body, self.asked_at)
-        cur.execute(query)
-        conn.commit()
+        self.save_incoming_data_or_updates(query)
 
     @staticmethod
     def get_by_(value, search_by):
@@ -28,7 +24,53 @@ class Question:
         query = """
         SELECT meetup_id,body FROM questions
         WHERE {} = '{}'""".format(search_by, value)
-
-        cur.execute(query)
-        meetup = cur.fetchall()
+        meetup = db_conn.fetch_single_data_row(db_conn, query)
         return meetup
+
+
+class Voting(db_conn):
+    def __init__(self, voteCast):
+        self.user = voteCast[0]
+        self.meetup = voteCast[1]
+        self.question = voteCast[2]
+        self.upvote = voteCast[3]
+        self.downvote = voteCast[4]
+        self.votes = voteCast[5] + self.upvote - self.downvote
+        self.voted_at = datetime.datetime.utcnow()
+
+    def update_to_votes(self):
+        query = """
+        INSERT INTO votes (user_id, meetup_id, question_id, upvotes, downvotes, votes, voted_at)
+        VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}')
+        """.format(self.user, self.meetup, self.question, self.upvote, self.downvote, self.votes, self.voted_at)
+        self.save_incoming_data_or_updates(query)
+
+    @staticmethod
+    def get_initial_vote_count(question_id):
+        """ get votes to a given question """
+        query = """
+        SELECT votes FROM votes
+        WHERE question_id = '{}'""".format(question_id)
+        all_voted_user_count = db_conn.fetch_all_tables_rows(db_conn, query)
+        if all_voted_user_count:
+            return all_voted_user_count[-1]
+        else:
+            return 0
+
+    @staticmethod
+    def get_from_questions(que_id):
+        """ get a specific question using its id """
+        query = """
+        SELECT * FROM questions
+        WHERE id = '{}'""".format(que_id)
+        question = db_conn.fetch_single_data_row(db_conn, query)
+        return question
+
+    @staticmethod
+    def get_a_voted_user_(user_id):
+        """ get a specific question using user id voted-user """
+        query = """
+        SELECT question_id FROM votes
+        WHERE user_id = '{}'""".format(user_id)
+        questionId = db_conn.fetch_single_data_row(db_conn, query)
+        return questionId

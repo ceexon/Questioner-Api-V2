@@ -36,23 +36,26 @@ class BaseValidation:
             abort(make_response(
                 jsonify({"status": 404, "error": missing+" field(s) not found"}), 404))
 
-    def check_field_values_no_whitespace(self, req_fields):
+    def null_field_check(self, req_fields):
         empty = []
-        white_space = []
         for field in req_fields:
             if not self.data[field]:
                 empty.append(field)
-            if not self.data[field].strip():
-                white_space.append(field)
-
         if empty:
             empty = ", ".join(empty)
             abort(make_response(
-                jsonify({"status": 422, "error": empty+" field(s) can't be empty"}), 422))
+                jsonify({"status": 422, "message": empty+" field(s) can't be empty"}), 422))
+
+    def check_field_values_no_whitespace(self, req_fields):
+        self.null_field_check(req_fields)
+        white_space = []
+        for field in req_fields:
+            if not self.data[field].strip():
+                white_space.append(field)
         if white_space:
             white_space = ", ".join(white_space)
             abort(make_response(jsonify(
-                {"status": 422, "error": white_space+" field(s) can't be white space only"}), 422))
+                {"status": 422, "message": white_space+" field(s) can't be white space only"}), 422))
 
 
 def token_required(f):
