@@ -7,22 +7,6 @@ from werkzeug.security import generate_password_hash
 import psycopg2
 from instance.config import app_config
 
-db_config_name = os.getenv("APP_SETTING")
-config = app_config[db_config_name]
-
-
-def connect_db():
-    """ Function to initialize db connection """
-    db_url = config.Database_Url
-    DSN = db_url
-    try:
-        conn = psycopg2.connect(DSN)
-
-    except Exception as error:
-        print('Unable to connect to database:', error)
-        return ("database connection error")
-    return conn
-
 
 def drop_table_if_exists():
     """ Removes all tables on app start so as to start working with no data """
@@ -112,27 +96,6 @@ def create_admin(connect):
     if get_admin:
         return 0
     cur.execute(query)
-    connect.commit()
-
-
-def delete_dummy_user(connect):
-    query = """
-        DELETE FROM users WHERE username = 'toovor';
-        DELETE FROM users WHERE username = 'kurlandss';
-        DELETE FROM meetups WHERE topic = 'Formless';
-    """
-    cur = connect.cursor()
-    cur.execute(query)
-    connect.commit()
-
-
-def db_init(connect):
-    """
-        Initialize db connection
-    """
-    cur = connect.cursor()
-    for table in set_up_tables():
-        cur.execute(table)
     connect.commit()
 
 
