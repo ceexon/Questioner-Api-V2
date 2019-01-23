@@ -94,9 +94,10 @@ def create_admin(connect):
     get_admin = cur.execute(get_admin)
     get_admin = cur.fetchone()
     if get_admin:
-        return 0
-    cur.execute(query)
-    connect.commit()
+        pass
+    else:
+        cur.execute(query)
+        connect.commit()
 
 
 def drop_tables(connect):
