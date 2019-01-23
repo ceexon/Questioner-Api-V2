@@ -3,15 +3,12 @@ import datetime
 import psycopg2
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
-from app.api.v2.models.db_connect import connect_db
+from.database import DatabaseConnection as db_conn
 
 TIME_NOW = datetime.datetime.utcnow()
 
-conn = connect_db()
-cur = conn.cursor()
 
-
-class User:
+class User(db_conn):
     """docstring for User"""
 
     def __init__(self, firstname=None, lastname=None, othername=None,
@@ -29,22 +26,22 @@ class User:
 
     def create_new_user(self):
         """ creates/adds a new user to the users table"""
-        if not User.get_all_users():
+        if not self.get_all_users():
             self.isAdmin = True
         query = """
-			INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date) VALUES(
-			'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}')""".format(self.fname, self.lname, self.other, self.uname, self.email, self.phone, self.password, self.publicId, self.now)
-        cur.execute(query)
-        conn.commit()
+			INSERT INTO users(firstname, lastname, othername, 
+            username, email, phone, password, publicId,
+            register_date) VALUES(
+			'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}')
+            """.format(self.fname, self.lname, self.other, self.uname,
+                       self.email, self.phone, self.password, self.publicId, self.now)
+        self.save_incoming_data_or_updates(query)
 
-    @staticmethod
-    def get_all_users():
+    def get_all_users(self):
         query = """ SELECT * FROM users """
-        all_users = cur.execute(query)
-        all_users = cur.fetchall()
+        all_users = self.fetch_all_tables_rows(query)
         if not all_users:
             return None
-
         list_of_all_users = []
         for user in all_users:
             a_user = User.format_user_info(user)
@@ -85,14 +82,13 @@ class User:
 			phone = '{}',
 			isAdmin = '{}'
 			WHERE publicId = {}
-		""".format(self.fname, self.lname, self.other, self.uname, self.email, self.password, self.phone, self.isAdmin, user_id)
-        cur.execute(query)
-        conn.commit()
+		""".format(self.fname, self.lname, self.other, self.uname,
+             self.email, self.password, self.phone, self.isAdmin, user_id)
+        self.save_incoming_data_or_updates(query)
 
     def delete_user(self, p_id):
         query = """ DELETE FROM requests WHERE public_id='{}' """.format(p_id)
-        cur.execute(query)
-        conn.commit()
+        self.save_incoming_data_or_updates(query)
 
     @staticmethod
     def query_username(username):
@@ -102,8 +98,8 @@ class User:
         query = """
         SELECT id, username, email, password, isAdmin FROM users
         WHERE users.username = '{}'""".format(username)
-        user = cur.execute(query)
-        user = cur.fetchone()
+        user = db_conn.fetch_single_data_row(
+            db_conn, query)
         return user
 
     @staticmethod
@@ -114,6 +110,6 @@ class User:
         query = """
         SELECT id, username, email, password, isAdmin FROM users
         WHERE users.email = '{}'""".format(email)
-        the_user = cur.execute(query)
-        the_user = cur.fetchone()
+        the_user = db_conn.fetch_single_data_row(
+            db_conn, query)
         return the_user
