@@ -93,12 +93,12 @@ class UserSignUp(BaseTest):
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
-        error_message = json.loads(response.data.decode("utf-8", secret))
+        errorNames = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
-            error_message["error"], 'invalid naming format')
+            errorNames["error"], 'invalid naming format')
         self.assertEqual(
-            error_message["message"], 'first, last and other name can only contain letters')
-        print(error_message)
+            errorNames["message"],
+            'first, last and other name can only contain letters')
         self.assertEqual(response.status_code, 422)
 
         """user signup success """
@@ -132,8 +132,8 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.miss_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 404)
-        error_message = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(error_message["error"], 'email field(s) not found')
+        errorEmail = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(errorEmail["error"], 'email field(s) not found')
 
         """Test signupfail empty email"""
         fake = self.success_signup
@@ -143,8 +143,9 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(fake),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        errorm = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(errorm["error"], "email field(s) can't be empty")
+        errorEmailEmpty = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(errorEmailEmpty["message"],
+                         "email field(s) can't be empty")
 
         """Test signupfail empty email"""
         fake = self.success_signup
@@ -154,8 +155,9 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(fake),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 409)
-        errorm = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(errorm["error"], "user with email exists")
+        errorEmailTaken = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(errorEmailTaken["error"],
+                         "user with email exists")
 
         """Test signupfail white_space email"""
         fake = self.success_signup
@@ -165,9 +167,10 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(fake),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        errorm = json.loads(response.data.decode("utf-8", secret))
+        errorWhitespace = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
-            errorm["error"], "email field(s) can't be white space only")
+            errorWhitespace["message"],
+            "email field(s) can't be white space only")
 
         """Test signupfail bad email format """
         signup_email = self.success_signup
@@ -177,9 +180,10 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(signup_email),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        error_message = json.loads(response.data.decode("utf-8", secret))
+        errorInvalidEmail = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
-            error_message["error"], 'invalid email format!! -> (example@mail.com)')
+            errorInvalidEmail["error"],
+            'invalid email format!! -> (example@mail.com)')
 
         """Test signupfail bad username """
         self.success_signup["email"] = "jjj@nnn.com"
@@ -188,9 +192,11 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 400)
-        error_message = json.loads(response.data.decode("utf-8", secret))
+        errorInvalidUsername = json.loads(
+            response.data.decode("utf-8", secret))
         self.assertEqual(
-            error_message["error"], 'username can only be a letter, digit or _')
+            errorInvalidUsername["error"],
+            'username can only be a letter, digit or _')
 
         """Test signupfail bad password """
         self.success_signup["username"] = "jjjoonncom"
@@ -199,10 +205,12 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        error_message = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(error_message["error"], 'invalid password')
+        errorInvalidPassword = json.loads(
+            response.data.decode("utf-8", secret))
+        self.assertEqual(errorInvalidPassword["error"], 'invalid password')
         self.assertEqual(
-            error_message["message"], 'lentgh less than 6, no digits, no uppercase letter, no symbol')
+            errorInvalidPassword["message"],
+            'lentgh less than 6, no digits, no uppercase letter, no symbol')
 
         """Test signupfail bad password """
         self.success_signup["username"] = "jjjoonncom"
@@ -211,10 +219,10 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        error_message = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(error_message["error"], 'invalid password')
+        errorNoLower = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(errorNoLower["error"], 'invalid password')
         self.assertEqual(
-            error_message["message"], 'no lowercase letter')
+            errorNoLower["message"], 'no lowercase letter')
 
         """Test signupfail bad phone invalid """
         self.success_signup["username"] = "jjjoonncom"
@@ -224,9 +232,10 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        error_message = json.loads(response.data.decode("utf-8", secret))
+        errorInvalidPhone = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
-            error_message["message"], "phone number can start with '+' and have digits")
+            errorInvalidPhone["message"],
+            "phone number can start with '+' and have digits")
 
         """Test signupfail bad phone invalid """
         self.success_signup["username"] = "jjjoonncom"
@@ -235,9 +244,10 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        error_message = json.loads(response.data.decode("utf-8", secret))
+        errorLengthPhone = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
-            error_message["message"], 'phone number length invalid(11-13)')
+            errorLengthPhone["message"],
+            'phone number length invalid(11-13)')
 
         """Test signupfail bad phone invalid alphas """
         self.success_signup["username"] = "jjjoonncom"
@@ -246,9 +256,10 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        error_message = json.loads(response.data.decode("utf-8", secret))
+        errorAlphasInPhone = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(
-            error_message["message"], "phone number can only be digits after '+'")
+            errorAlphasInPhone["message"],
+            "phone number can only be digits after '+'")
 
         """Test signupfail bad phone invalid """
         self.success_signup["username"] = "jjjoonncom"
@@ -257,9 +268,11 @@ class UserSignUp(BaseTest):
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
         self.assertEqual(response.status_code, 422)
-        error_message = json.loads(response.data.decode("utf-8", secret))
+        errorPhoneNumberLength = json.loads(
+            response.data.decode("utf-8", secret))
         self.assertEqual(
-            error_message["message"], 'phone number length invalid(10)')
+            errorPhoneNumberLength["message"],
+            'phone number length invalid(10)')
 
 
 class TestUserLogin(BaseTest):
@@ -268,7 +281,8 @@ class TestUserLogin(BaseTest):
         self.client.post("api/v2/auth/signup", data=json.dumps(
             self.success_signup), content_type="application/json")
         response = self.client.post(
-            "api/v2/auth/login", data=json.dumps(self.success_signup), content_type="application/json")
+            "api/v2/auth/login",
+            data=json.dumps(self.success_signup), content_type="application/json")
         result = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(result["token"])
@@ -276,7 +290,8 @@ class TestUserLogin(BaseTest):
         """registered username but wrong password"""
         self.success_signup["password"] = "toovor"
         response = self.client.post(
-            "api/v2/auth/login", data=json.dumps(self.success_signup), content_type="application/json")
+            "api/v2/auth/login",
+            data=json.dumps(self.success_signup), content_type="application/json")
         result = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(result["error"], "incorrect password")
         self.assertEqual(response.status_code, 401)
@@ -284,7 +299,8 @@ class TestUserLogin(BaseTest):
         """unregistered username"""
         self.success_signup["username"] = "somename"
         response = self.client.post(
-            "api/v2/auth/login", data=json.dumps(self.success_signup), content_type="application/json")
+            "api/v2/auth/login",
+            data=json.dumps(self.success_signup), content_type="application/json")
         result = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(result["error"], "unregistered username")
         self.assertEqual(response.status_code, 401)
