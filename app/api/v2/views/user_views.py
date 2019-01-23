@@ -7,7 +7,7 @@ from flask import Blueprint, request, jsonify, abort, make_response
 from werkzeug.security import check_password_hash
 from ..utils.base_vals import BaseValidation, token_required
 from ..utils.user_vals import UserValidation
-from ..models.user import User
+from ..models.user import User, LogoutBlacklist
 v2_blue = Blueprint("ap1v2", __name__)
 KEY = os.getenv("SECRET")
 
@@ -75,3 +75,14 @@ def user_login():
 
     return jsonify({"status": 200, "message": "logged in successfully",
                     "token": token.decode("utf-8", KEY)}), 200
+
+
+@v2_blue.route("/logout", methods=["POST"])
+@token_required
+def user_logout(current_user):
+    logout_token = request.headers["x-access-token"]
+    logged_user = User.query_username(current_user)
+    user_id = logged_user[0]
+    leftPage = LogoutBlacklist(user_id, logout_token)
+    leftPage.add_to_blacklist()
+    return jsonify({"status": 200, "message": "logged out successfully"}), 200

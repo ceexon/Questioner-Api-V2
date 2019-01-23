@@ -111,3 +111,23 @@ class User(db_conn):
         the_user = db_conn.fetch_single_data_row(
             db_conn, query)
         return the_user
+
+
+class LogoutBlacklist(db_conn):
+    def __init__(self, user_id, token):
+        self.user = user_id
+        self.token = token
+
+    def add_to_blacklist(self):
+        query = """
+			INSERT INTO blacklists(user_id, token)
+            VALUES('{}','{}')""".format(self.user, self.token)
+        self.save_incoming_data_or_updates(query)
+
+    @staticmethod
+    def get_blacklisted(token):
+        query = """
+        select * from blacklists where token = '{}'
+        """.format(token)
+        is_black = db_conn.fetch_single_data_row(db_conn, query)
+        return is_black
