@@ -23,11 +23,10 @@ class User(db_conn):
         self.phone = phone
         self.publicId = str(uuid.uuid4())
         self.now = TIME_NOW
+        self.isAdmin = False
 
     def create_new_user(self):
         """ creates/adds a new user to the users table"""
-        if not self.get_all_users():
-            self.isAdmin = True
         query = """
 			INSERT INTO users(firstname, lastname, othername, 
             username, email, phone, password, publicId,
