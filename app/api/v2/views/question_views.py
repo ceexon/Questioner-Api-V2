@@ -26,7 +26,7 @@ def ask_question(current_user):
     if not meetup:
         return jsonify({"status": 404, "error": "Mettup with id {} not found".format(meet_id)}), 404
     exists = Question.get_by_(meetup[0], "meetup_id")
-    if (meet_id, body) in exists:
+    if (meet_id, body) == exists:
         return jsonify({"status": 403, "error": "A similar question already exists"}), 403
     meetup = meetup[0]
     user_id = logged_user[0]
