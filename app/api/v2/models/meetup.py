@@ -6,13 +6,13 @@ from app.api.v2.models.database import DatabaseConnection as db_conn
 class Meetup(db_conn):
     """ manipulating meetup data """
 
-    def __init__(self, topic, location, happen_on, tags, user_id):
+    def __init__(self, theMeetup):
         """ meetup variables mains """
-        self.topic = topic
-        self.happen_on = happen_on
-        self.location = location
-        self.tags = tags
-        self.user_id = user_id
+        self.topic = theMeetup[0]
+        self.happen_on = theMeetup[1]
+        self.location = theMeetup[2]
+        self.tags = theMeetup[3]
+        self.user_id = theMeetup[4]
         self.created_on = datetime.datetime.now()
 
     def save_meetup(self):
@@ -80,11 +80,11 @@ class Meetup(db_conn):
 
 
 class Rsvp(Meetup):
-    def __init__(self, user_id, meet_id, meet_topic, rsvp_status):
-        self.user = user_id
-        self.meet = meet_id
-        self.topic = meet_topic
-        self.status = rsvp_status
+    def __init__(self, rsvpToPost):
+        self.user = rsvpToPost[0]
+        self.meet = rsvpToPost[0]
+        self.topic = rsvpToPost[0]
+        self.status = rsvpToPost[0]
         self.responded_at = datetime.datetime.utcnow()
 
     def save_rsvp(self):

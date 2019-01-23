@@ -11,19 +11,18 @@ TIME_NOW = datetime.datetime.utcnow()
 class User(db_conn):
     """docstring for User"""
 
-    def __init__(self, firstname=None, lastname=None, othername=None,
-                 username=None, email=None, phone=None, password=None):
+    def __init__(self, userData, isAdmin=False):
 
-        self.fname = firstname
-        self.lname = lastname
-        self.other = othername
-        self.uname = username
-        self.email = email
-        self.password = generate_password_hash(str(password))
-        self.phone = phone
+        self.fname = userData[0]
+        self.lname = userData[1]
+        self.other = userData[2]
+        self.uname = userData[3]
+        self.email = userData[4]
+        self.password = generate_password_hash(str(userData[5]))
+        self.phone = userData[6]
         self.publicId = str(uuid.uuid4())
         self.now = TIME_NOW
-        self.isAdmin = False
+        self.isAdmin = isAdmin
 
     def create_new_user(self):
         """ creates/adds a new user to the users table"""

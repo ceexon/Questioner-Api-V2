@@ -4,11 +4,11 @@ from app.api.v2.models.database import DatabaseConnection as db_conn
 
 
 class Question(db_conn):
-    def __init__(self, user_id, meetup_id, quest_title, quest_body):
-        self.user = user_id
-        self.meeetup = meetup_id
-        self.title = quest_title
-        self.body = quest_body
+    def __init__(self, theQuestion):
+        self.user = theQuestion[0]
+        self.meeetup = theQuestion[1]
+        self.title = theQuestion[2]
+        self.body = theQuestion[3]
         self.asked_at = datetime.datetime.utcnow()
 
     def post_a_question(self):
@@ -29,13 +29,13 @@ class Question(db_conn):
 
 
 class Voting(db_conn):
-    def __init__(self, user_id, meetup_id, question_id, upvote, downvote, init_votes):
-        self.user = user_id
-        self.meetup = meetup_id
-        self.question = question_id
-        self.upvote = upvote
-        self.downvote = downvote
-        self.votes = init_votes + upvote - downvote
+    def __init__(self, voteCast):
+        self.user = voteCast[0]
+        self.meetup = voteCast[1]
+        self.question = voteCast[2]
+        self.upvote = voteCast[3]
+        self.downvote = voteCast[4]
+        self.votes = voteCast[5] + self.upvote - self.downvote
         self.voted_at = datetime.datetime.utcnow()
 
     def update_to_votes(self):
