@@ -14,7 +14,6 @@ def create_app(name_conf):
     my_app.config.from_pyfile('config.py')
 
     db_url = app_config[name_conf].Database_Url
-    print("\n\n\n\n", db_url, "\n\n\n\n")
 
     DatabaseConnection(db_url)
     if name_conf == "testing":
