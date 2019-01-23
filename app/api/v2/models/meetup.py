@@ -94,9 +94,6 @@ class Rsvp(Meetup):
         """.format(self.user, self.meet, self.topic, self.status, self.responded_at)
         self.save_incoming_data_or_updates(query)
 
-    def update_rsvp(self):
-        pass
-
     def format_rsvp(self, rsvp_tuple):
         rsvp = {
             "id": rsvp_tuple[0],
