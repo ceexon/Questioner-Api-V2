@@ -33,9 +33,11 @@ def user_signup():
     username_taken = User.query_username(username)
     email_taken = User.query_email(email)
     if username_taken:
-        return jsonify({"status": 409, "error": "user with username exists"}), 409
+        return jsonify({
+            "status": 409, "error": "user with username exists"}), 409
     if email_taken:
-        return jsonify({"status": 409, "error": "user with email exists"}), 409
+        return jsonify({
+            "status": 409, "error": "user with email exists"}), 409
     valid_user.check_field_values_no_whitespace(valid_user.signup_required)
     valid_user.valid_username()
     valid_user.validate_email()
@@ -45,7 +47,8 @@ def user_signup():
     new_user = User([firstname, lastname, othername, username, email, password,
                      phone])
     new_user.create_new_user()
-    return jsonify({"status": 201, "message": "user created successfully"}), 201
+    return jsonify({
+        "status": 201, "message": "user created successfully"}), 201
 
 
 @v2_blue.route("/login", methods=['POST'])
@@ -55,7 +58,8 @@ def user_login():
         log_data = request.get_json()
 
     except Exception:
-        return jsonify({"status": 417, "error": "Expecting Login data!!"}), 417
+        return jsonify({
+            "status": 417, "error": "Expecting Login data!!"}), 417
 
     valid_login = UserValidation(log_data)
     valid_login.check_missing_fields(["username", "password"])
@@ -68,7 +72,7 @@ def user_login():
     if not check_password_hash(user_found[-2], password):
         return jsonify({"status": 401, "error": "incorrect password"}), 401
 
-    exp = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
+    exp = datetime.datetime.utcnow() + datetime.timedelta(minutes=120)
     token = jwt.encode(
         {"username": username, 'exp': exp}, KEY,
         algorithm='HS256')
