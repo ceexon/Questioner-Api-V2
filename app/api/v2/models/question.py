@@ -15,7 +15,8 @@ class Question(db_conn):
         query = """
         INSERT INTO questions(user_id,meetup_id,title,body,created_on)
         VALUES('{}','{}','{}','{}','{}')
-        """.format(self.user, self.meeetup, self.title, self.body, self.asked_at)
+        """.format(self.user, self.meeetup, self.title,
+                   self.body, self.asked_at)
         self.save_incoming_data_or_updates(query)
 
     @staticmethod
@@ -27,6 +28,15 @@ class Question(db_conn):
         meetup = db_conn.fetch_single_data_row(db_conn, query)
         return meetup
 
+    @staticmethod
+    def get_all_by_meetup_id(value):
+        """ get all questions from a specific meetup """
+        query = """
+        SELECT * FROM questions
+        WHERE meetup_id = '{}'""".format(value)
+        meetups = db_conn.fetch_all_tables_rows(db_conn, query)
+        return meetups
+
 
 class Voting(db_conn):
     def __init__(self, voteCast):
@@ -35,14 +45,16 @@ class Voting(db_conn):
         self.question = voteCast[2]
         self.upvote = voteCast[3]
         self.downvote = voteCast[4]
-        self.votes = voteCast[5] + self.upvote - self.downvote
+        self.votes = voteCast[5] + 1
         self.voted_at = datetime.datetime.utcnow()
 
     def update_to_votes(self):
         query = """
-        INSERT INTO votes (user_id, meetup_id, question_id, upvotes, downvotes, votes, voted_at)
+        INSERT INTO votes (user_id, meetup_id, question_id,
+         upvotes, downvotes, votes, voted_at)
         VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}')
-        """.format(self.user, self.meetup, self.question, self.upvote, self.downvote, self.votes, self.voted_at)
+        """.format(self.user, self.meetup, self.question, self.upvote,
+                   self.downvote, self.votes, self.voted_at)
         self.save_incoming_data_or_updates(query)
 
     @staticmethod
@@ -63,7 +75,6 @@ class Voting(db_conn):
         query = """
         SELECT * FROM questions
         WHERE id = '{}'""".format(quiz_id)
-        print(query)
         question = db_conn.fetch_single_data_row(db_conn, query)
         return question
 
@@ -73,8 +84,17 @@ class Voting(db_conn):
         query = """
         SELECT question_id FROM votes
         WHERE user_id = '{}'""".format(user_id)
-        questionId = db_conn.fetch_single_data_row(db_conn, query)
+        questionId = db_conn.fetch_all_tables_rows(db_conn, query)
         return questionId
+
+    @staticmethod
+    def get_all_up_down_votes(up_or_down_votes, question_id):
+        """ pick all upvotes or downvotes from a question """
+        query = """
+        SELECT {} from votes WHERE question_id = {}
+        """.format(up_or_down_votes, question_id)
+        votes = db_conn.fetch_all_tables_rows(db_conn, query)
+        return votes
 
 
 class Comment(db_conn):
@@ -88,7 +108,9 @@ class Comment(db_conn):
 
     def post_a_comment(self):
         query = """
-        INSERT INTO comments (user_id, question_id, question_title, question_body, comment, comment_at)
+        INSERT INTO comments(user_id, question_id, question_title, 
+        question_body, comment, comment_at)
         VALUES('{}', '{}', '{}', '{}', '{}', '{}')
-        """.format(self.user, self.question, self.title, self.body, self.comment, self.comment_at)
+        """.format(self.user, self.question, self.title, self.body,
+                   self.comment, self.comment_at)
         self.save_incoming_data_or_updates(query)

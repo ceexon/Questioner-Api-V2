@@ -1,3 +1,6 @@
+import timestring
+import datetime
+import json
 from flask import Blueprint, request, jsonify, abort, make_response
 from ..models.meetup import Meetup, Rsvp
 from ..models.user import User
@@ -14,7 +17,9 @@ def create_meetup(current_user):
     logged_user = User.query_username(current_user)
     adminStatus = logged_user[-1]
     if not adminStatus:
-        return jsonify({"status": 403, "error": "you cannot create a meetup"}), 403
+        return jsonify({
+            "status": 403,
+            "error": "you cannot create a meetup"}), 403
 
     try:
         meetup_data = request.get_json()
@@ -39,6 +44,7 @@ def create_meetup(current_user):
 
     MeetValid.prevent_duplication(meetup_data)
     user_id = logged_user[0]
+    happen_on = MeetValid.validate_meetup_date_input(happen_on)
     meetup = Meetup([topic, happen_on, location, tags, user_id])
     meetup.save_meetup()
 
@@ -56,7 +62,9 @@ def get_all_meets_admin(current_user):
     logged_user = User.query_username(current_user)
     adminStatus = logged_user[-1]
     if not adminStatus:
-        return jsonify({"status": 403, "error": "you canot access the meetups"}), 403
+        return jsonify({
+            "status": 403,
+            "error": "you canot access the meetups"}), 403
     meetups = Meetup.get_all_meetups()
     if not meetups:
         abort(make_response(jsonify({
@@ -75,7 +83,12 @@ def get_all_upcoming():
             "status": 404,
             "data": "no meetups scheduled yet"
         }), 404))
-    return jsonify({"status": 200, "data": meetups}), 200
+    upcoming_date = datetime.datetime.now() + datetime.timedelta(minutes=0)
+    upcoming_meetups = []
+    for meetup in meetups:
+        if timestring.Date(meetup["happen_on"]) > upcoming_date:
+            upcoming_meetups.append(meetup)
+    return jsonify({"status": 200, "data": upcoming_meetups}), 200
 
 
 @v_blue.route("/meetups/<m_id>", methods=["GET"])
@@ -85,7 +98,9 @@ def get_by_id(m_id):
     if meetup:
         meetup = Meetup.format_meet_info(meetup)
         return jsonify({"status": 200, "data": meetup}), 200
-    return jsonify({"status": 404, "error": "Mettup with id {} not found".format(m_id)}), 404
+    return jsonify({
+        "status": 404,
+        "error": "Mettup with id {} not found".format(m_id)}), 404
 
 
 @v_blue.route("/meetups/<m_id>/rsvp", methods=["POST"])
@@ -93,7 +108,9 @@ def get_by_id(m_id):
 def meetup_rsvp(current_user, m_id):
     logged_user = User.query_username(current_user)
     if not logged_user:
-        return jsonify({"status": 401, "error": "unregistered user.Plase signin first"}), 401
+        return jsonify({
+            "status": 401,
+            "error": "unregistered user.Plase signin first"}), 401
     user_id = logged_user[0]
 
     try:
@@ -121,9 +138,13 @@ def meetup_rsvp(current_user, m_id):
         return jsonify({
             "status": 400,
             "error": "invalid choice. Status response is limited to 'yes/maybe/no'"}), 400
-    rsvped = Rsvp.get_rsvp_by(meet_id, "meetup_id")
+
+    rsvped = Rsvp.get_rsvp_by(user_id, "user_id")
+    print(rsvped)
     if (user_id,) in rsvped:
-        return jsonify({"status": 403, "error": "RSVP is only once, try updating status"}), 403
+        return jsonify({
+            "status": 403,
+            "error": "RSVP is only once, try updating status"}), 403
     meetup = Meetup.format_meet_info(meetup)
     topic = meetup["topic"]
     rsvp = Rsvp([user_id, meet_id, topic, status])
@@ -141,9 +162,17 @@ def delete_by_id(current_user, m_id):
     logged_user = User.query_username(current_user)
     adminStatus = logged_user[-1]
     if not adminStatus:
-        return jsonify({"status": 403, "error": "you canot delete a meetup"}), 403
+        return jsonify({
+            "status": 403,
+            "error": "you canot delete a meetup"}), 403
+
     meet_id = BaseValidation.confirm_ids(m_id)
     meetup = Meetup.delete_meetup(meet_id)
     if meetup:
-        return jsonify({"status": 200, "message": "meetup deleted successfully"}), 200
-    return jsonify({"status": 404, "error": "Mettup with id {} not found".format(m_id)}), 404
+        return jsonify({
+            "status": 200,
+            "message": "meetup deleted successfully"}), 200
+
+    return jsonify({
+        "status": 404,
+        "error": "Mettup with id {} not found".format(m_id)}), 404

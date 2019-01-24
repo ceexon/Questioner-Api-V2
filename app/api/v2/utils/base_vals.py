@@ -55,8 +55,10 @@ class BaseValidation:
                 white_space.append(field)
         if white_space:
             white_space = ", ".join(white_space)
-            abort(make_response(jsonify(
-                {"status": 422, "message": white_space+" field(s) can't be white space only"}), 422))
+            abort(make_response(jsonify({
+                "status": 422,
+                "message": white_space+" field(s) can't be white space only"}),
+                422))
 
 
 def token_required(f):
@@ -66,11 +68,10 @@ def token_required(f):
         if "x-access-token" in request.headers:
             token = request.headers['x-access-token']
             used_token = LogoutBlacklist.get_blacklisted(token)
-            print(used_token)
             if used_token:
                 abort(make_response(jsonify({
                     "status": 403,
-                    "error": "Token is unusable",
+                    "error": "Token has already been used",
                     "message": "please login again to continue"}), 403))
         else:
             abort(make_response(jsonify({"error": "Token is missing"}), 401))

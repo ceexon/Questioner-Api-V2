@@ -20,7 +20,7 @@ class MeetupTest(BaseTest):
             "firstname": "burudi",
             "lastname": "zonecc",
             "othername": "BK",
-                        "username": "kurlandss",
+            "username": "kurlandss",
             "email": "kurlandss@zonecc.bk",
             "phone": "+09778789847",
             "password": "$$22BBkk"
@@ -42,6 +42,10 @@ class MeetupTest(BaseTest):
         admin_token = self.admin_login()
         response = self.client.get(
             "api/v2/meetups", headers={"x-access-token": admin_token})
+        self.assertEqual(response.status_code, 404)
+
+        response = self.client.get(
+            "api/v2/meetups/upcoming", headers={"x-access-token": admin_token})
         self.assertEqual(response.status_code, 404)
 
         """ test fail to get meet record by id """
@@ -74,8 +78,8 @@ class MeetupTest(BaseTest):
             headers={"x-access-token": admin_token},
             content_type="application/json")
         created = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(
-            created["error"], "missing either (topic,happen_on,location or tags)")
+        self.assertEqual(created["error"],
+                         "missing either (topic,happen_on,location or tags)")
         self.assertEqual(response.status_code, 400)
 
         """ test when tags is empty """
@@ -242,6 +246,15 @@ class MeetupTest(BaseTest):
         response = self.client.post(
             "api/v2/meetups/1/rsvp", headers={"x-access-token": admin_token},
             data=json.dumps({"status": "maybe"}), content_type="application/json")
+        error_message = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(error_message["error"],
+                         "RSVP is only once, try updating status")
+        self.assertEqual(response.status_code, 403)
+
+        """ test try to meetup again no"""
+        response = self.client.post(
+            "api/v2/meetups/1/rsvp", headers={"x-access-token": admin_token},
+            data=json.dumps({"status": "n"}), content_type="application/json")
         error_message = json.loads(response.data.decode("utf-8"))
         self.assertEqual(error_message["error"],
                          "RSVP is only once, try updating status")
