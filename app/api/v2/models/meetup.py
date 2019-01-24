@@ -1,5 +1,6 @@
 """ db meetup models """
 import datetime
+import json
 from app.api.v2.models.database import DatabaseConnection as db_conn
 
 
@@ -11,7 +12,7 @@ class Meetup(db_conn):
         self.topic = theMeetup[0]
         self.happen_on = theMeetup[1]
         self.location = theMeetup[2]
-        self.tags = theMeetup[3]
+        self.tags = json.dumps(theMeetup[3])
         self.user_id = theMeetup[4]
         self.created_on = datetime.datetime.now()
 
@@ -21,7 +22,7 @@ class Meetup(db_conn):
         """
         query = """
         INSERT INTO meetups(topic, location, happen_on, tags, created_on, user_id) VALUES(
-            '{}', '{}', '{}', ARRAY{}, '{}', '{}'
+            '{}', '{}', '{}', '{}', '{}', '{}'
         )""".format(self.topic, self.location, self.happen_on, self.tags, self.created_on, self.user_id)
         self.save_incoming_data_or_updates(query)
 
@@ -49,7 +50,7 @@ class Meetup(db_conn):
             "topic": meet_tuple[2],
             "location": meet_tuple[3],
             "happen_on": meet_tuple[4],
-            "tags": meet_tuple[5],
+            "tags": json.loads(meet_tuple[5]),
             "created_on": meet_tuple[6]
         }
 
