@@ -1,0 +1,406 @@
+swagger: '2.0'
+info:
+  version: '1.0'
+  title: QUESTIONER-api-V2
+  description: 'This is an application that
+  allows its users to crowdsource questions 
+  they want discussed in a meetup.
+  All users can view upcoming meetups, rsvp, and ask 
+  questions that they think should be discussed. 
+  Questions are upvoted and downvoted to determine their priority'
+  contact: {}
+host: 'questioner-2-api.herokuapp.com'
+basePath: /api/v2
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /auth/signup:
+    post:
+      description: 'Creates a new user'
+      summary: User SignUp
+      tags:
+        - auth
+      operationId: AuthSignupPost
+      produces:
+        - application/json
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/UserSignUpRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /auth/login:
+    post:
+      description: 'User logs in to the account they have created'
+      summary: user sign in
+      tags:
+        - auth
+      operationId: AuthLoginPost
+      produces:
+        - application/json
+      parameters:
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/usersigninRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /auth/logout:
+    post:
+      description: 'User logs out of their account'
+      summary: user logout
+      tags:
+        - auth
+      operationId: AuthLogoutPost
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /meetups:
+    post:
+      description: 'An admin creates meetups'
+      summary: Admin creates meetups
+      tags:
+        - Meetups
+      operationId: MeetupsPost
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/AdmincreatesmeetupsRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /meetups/upcoming:
+    get:
+      description: 'Users are able to view upcoming meetups'
+      summary: View all upcoming meetups
+      tags:
+        - Meetups
+      operationId: MeetupsUpcomingGet
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /meetups/2:
+    get:
+      description: Get a specific meetup by its ID
+      summary: Get meetup by id
+      tags:
+        - Meetups
+      operationId: Meetups2Get
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /meetups/1/rsvp:
+    post:
+      description: Respond to a Meetup invitation or suggestion using(no/yes/maybe)
+      summary: Meetup RSVP
+      tags:
+        - Meetups
+      operationId: Meetups1RsvpPost
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Body
+          in: body
+          required: true
+          description: ''
+          schema:
+            $ref: '#/definitions/MeetupRSVPRequest'
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /meetups/3:
+    delete:
+      description: Delete a meetup by admin
+      summary: Admin delete a meetup
+      tags:
+        - Meetups
+      operationId: Meetups3Delete
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /questions:
+    post:
+      description: Adds a new Question to the selected Meetup
+      summary: post a question on a meetup
+      tags:
+        - Questions
+      operationId: QuestionsPost
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /meetups/1/questions:
+    get:
+      description: Selects all Questions posted to a specific meetup
+      summary: get all questions asked to a specific meetup
+      tags:
+        - Questions
+      operationId: Meetups1QuestionsGet
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /questions/2/upvote:
+    patch:
+      description: Voting for an asked Question to give it priority
+      summary: Upvote a question
+      tags:
+        - Questions
+      operationId: Questions2UpvotePatch
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /questions/1/downvote:
+    patch:
+      description: Reducing the number of upvotes
+      summary: Downvote an asked question
+      tags:
+        - Questions
+      operationId: Questions1DownvotePatch
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+  /questions/1/comments:
+    post:
+      description: Adds a Comment to an asked Question
+      summary: Commment on an asked question
+      tags:
+        - Questions
+      operationId: Questions1CommentsPost
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+        - name: Content-Type
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}
+definitions:
+  UserSignUpRequest:
+    title: UserSignUpRequest
+    example:
+      firstname: Trevor
+      lastname: Kurland
+      othername: Burudi
+      username: tester6
+      email: tester@mydb.com
+      phone: '+254791261000'
+      password: $$22BBkk
+    type: object
+    properties:
+      firstname:
+        type: string
+      lastname:
+        type: string
+      othername:
+        type: string
+      username:
+        type: string
+      email:
+        type: string
+      phone:
+        type: string
+      password:
+        type: string
+    required:
+      - firstname
+      - lastname
+      - othername
+      - username
+      - email
+      - phone
+      - password
+  usersigninRequest:
+    title: usersigninRequest
+    example:
+      username: tester
+      password: $$22BBkk
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+    required:
+      - username
+      - password
+  AdmincreatesmeetupsRequest:
+    title: AdmincreatesmeetupsRequest
+    example:
+      topic: Python Flask
+      images:
+        - corey schafer
+      location: Nairobi
+      happen_on: 02/04/2019/1000HRS
+      tags:
+        - '#At home'
+        - '#coding'
+        - '#enjoy'
+    type: object
+    properties:
+      topic:
+        type: string
+      images:
+        type: array
+        items:
+          type: string
+      location:
+        type: string
+      happen_on:
+        type: string
+      tags:
+        type: array
+        items:
+          type: string
+    required:
+      - topic
+      - images
+      - location
+      - happen_on
+      - tags
+  MeetupRSVPRequest:
+    title: MeetupRSVPRequest
+    example:
+      status: 'no'
+    type: object
+    properties:
+      status:
+        type: string
+    required:
+      - status
+tags:
+  - name: auth
+    description: ''
+  - name: Meetups
+    description: ''
+  - name: Questions
+    description: ''
