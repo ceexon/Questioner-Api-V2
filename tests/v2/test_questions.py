@@ -90,9 +90,7 @@ class TestQuestions(BaseTest):
             headers={
                 "x-access-token": self.sign_login_local()})
         result = json.loads(response.data.decode("utf-8"), secret)
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(
-            result["error"], "You have already voted, try updating")
+        self.assertEqual(response.status_code, 201)
 
         """ test downvote fails after upvote same user """
         response = self.client.patch(
@@ -100,9 +98,7 @@ class TestQuestions(BaseTest):
             headers={
                 "x-access-token": self.sign_login_local()})
         result = json.loads(response.data.decode("utf-8"), secret)
-        self.assertEqual(response.status_code, 403)
-        self.assertEqual(
-            result["error"], "You have already voted, try updating")
+        self.assertEqual(response.status_code, 201)
 
         """ test downvote """
         response = self.client.patch(
@@ -124,6 +120,24 @@ class TestQuestions(BaseTest):
         result = json.loads(response.data.decode("utf-8"), secret)
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
+
+        """ get comment successful """
+        testComment = {"comment": "my comment"}
+        response = self.client.get(
+            "/api/v2/questions/1/comments",
+            data=json.dumps(testComment),
+            headers={"x-access-token": self.admin_login()},
+            content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+
+        """ get comment unsuccessful """
+        testComment = {"comment": "my comment"}
+        response = self.client.get(
+            "/api/v2/questions/hhhhh/comments",
+            data=json.dumps(testComment),
+            headers={"x-access-token": self.admin_login()},
+            content_type="application/json")
+        self.assertEqual(response.status_code, 400)
 
         """ comment unsuccessful no data"""
         response = self.client.post("/api/v2/questions/1/comments", headers={
