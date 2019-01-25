@@ -40,8 +40,8 @@ paths:
           schema:
             $ref: '#/definitions/UserSignUpRequest'
       responses:
-        '200':
-          description: ''
+        '201':
+          description: 'user created successfully'
           headers: {}
   /auth/login:
     post:
@@ -66,7 +66,7 @@ paths:
             $ref: '#/definitions/usersigninRequest'
       responses:
         '200':
-          description: ''
+          description: 'logged in successfully'
           headers: {}
   /auth/logout:
     post:
@@ -85,7 +85,7 @@ paths:
           description: ''
       responses:
         '200':
-          description: ''
+          description: 'logged out successfully'
           headers: {}
   /meetups:
     post:
@@ -114,7 +114,7 @@ paths:
           schema:
             $ref: '#/definitions/AdmincreatesmeetupsRequest'
       responses:
-        '200':
+        '201':
           description: ''
           headers: {}
   /meetups/upcoming:
@@ -301,9 +301,30 @@ paths:
           type: string
           description: ''
       responses:
-        '200':
+        '201':
           description: ''
           headers: {}
+          
+  /questions/2/comments:
+    post:
+      description: View comments for a given question
+      summary: View comments
+      tags:
+        - Questions
+      operationId: Questions2CommentsGet
+      produces:
+        - application/json
+      parameters:
+        - name: x-access-token
+          in: header
+          required: true
+          type: string
+          description: ''
+      responses:
+        '200':
+          description: ''
+          headers: {}         
+
 definitions:
   UserSignUpRequest:
     title: UserSignUpRequest
