@@ -1,5 +1,6 @@
 """" Main connection to the postgres database """
 import psycopg2
+from flask import abort, make_response, jsonify
 from .db_connect import set_up_tables, create_admin, drop_table_if_exists
 
 
@@ -47,3 +48,18 @@ class DatabaseConnection:
         cur.execute(query)
         all_data_rows = cur.fetchall()
         return all_data_rows
+
+    def fetch_all_if_exists(self, table_name, column_name, column_value):
+        """ gets all details from a table with suggessted property """
+        query = """
+            SELECT * FROM {} where {} = '{}'
+        """.format(table_name, column_name, column_value)
+        cur.execute(query)
+        result = cur.fetchall()
+        if not result:
+            abort(make_response(jsonify({
+                "status": 404,
+                "message": "{} with {} '{}' not found".format(
+                    table_name[0:-1], column_name, column_value),
+                "error": "data not found"})))
+        return result
