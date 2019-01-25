@@ -20,6 +20,22 @@ class Question(db_conn):
         self.save_incoming_data_or_updates(query)
 
     @staticmethod
+    def serialize_a_question(question_list):
+        serial_question = {}
+        serial_question_list = []
+        for question in question_list:
+            if question:
+                serial_question["Id"] = question[0]
+                serial_question["User"] = question[1]
+                serial_question["Meetup"] = question[2]
+                serial_question["Quiz Title"] = question[3]
+                serial_question["Quiz Body"] = question[4]
+                serial_question["Asked on"] = question[5]
+                serial_question_list.append(serial_question)
+
+        return serial_question_list
+
+    @staticmethod
     def get_by_(value, search_by):
         """ get a specific question using its <your choice> """
         query = """
@@ -45,7 +61,7 @@ class Voting(db_conn):
         self.question = voteCast[2]
         self.upvote = voteCast[3]
         self.downvote = voteCast[4]
-        self.votes = voteCast[5] + 1
+        self.votes = voteCast[5] + self.upvote - self.downvote
         self.voted_at = datetime.datetime.utcnow()
 
     def update_to_votes(self):
@@ -114,3 +130,20 @@ class Comment(db_conn):
         """.format(self.user, self.question, self.title, self.body,
                    self.comment, self.comment_at)
         self.save_incoming_data_or_updates(query)
+
+    @staticmethod
+    def serialize_a_comment(comment_list):
+        serial_comment = {}
+        serial_comment_list = []
+        for comment in comment_list:
+            if comment:
+                serial_comment["Id"] = comment[0]
+                serial_comment["User"] = comment[1]
+                serial_comment["Question"] = comment[2]
+                serial_comment["Quiz Title"] = comment[3]
+                serial_comment["Quiz Body"] = comment[4]
+                serial_comment["comment"] = comment[5]
+                serial_comment["comment at"] = comment[6]
+                serial_comment_list.append(serial_comment)
+
+        return serial_comment_list
