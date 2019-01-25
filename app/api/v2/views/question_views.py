@@ -63,46 +63,22 @@ def voting_action(current_user, quiz_id, upvote, downvote):
     logged_user = User.query_username(current_user)
     question_id = QuestionValid.confirm_ids(quiz_id)
     user_id = logged_user[0]
-    voted = Voting.get_a_voted_user_(user_id)
-    print("\n\n\n\n\n", voted, "\n\n\n")
-    if voted:
-        for vote in voted:
-            if vote[0] == question_id:
-                abort(make_response(
-                    jsonify({
-                        "status": 403,
-                        "error": "You have already voted, try updating"}),
-                    403))
     question = Voting.get_from_questions(question_id)
-    if not question:
-        abort(make_response(jsonify({
-            "status": 404,
-            "error": "Question with id {} not found".format(quiz_id)}), 400))
     meetup = question[2]
     title = question[3]
     body = question[4]
     downvote = downvote
     upvote = upvote
     user_id = user_id
-    action = ""
-    if upvote:
-        action = "upvotes"
-    if downvote:
-        action = "downvotes"
-    all_init_votes = Voting.get_all_up_down_votes(action, question_id)
-    count_votes = 0
-    for vote in all_init_votes:
-        if vote[0] == 1:
-            count_votes += 1
-
+    all_init_votes = Voting.get_initial_vote_count(question_id)
     if all_init_votes:
-        all_init_votes = count_votes
+        all_init_votes = all_init_votes[0]
     else:
-        all_init_votes = 0
+        all_init_votes = all_init_votes
     new_vote = Voting([user_id, meetup, question_id,
-                       upvote, downvote, all_init_votes])
+                      upvote, downvote, all_init_votes])
     new_vote.update_to_votes()
-    return [meetup, title, body, all_init_votes]
+    return [meetup,title,body,all_init_votes]
 
 
 @q_blue.route('/questions/<quiz_id>/upvote', methods=["PATCH"])
@@ -125,7 +101,7 @@ def downvote_question(current_user, quiz_id):
         "meetup": downvoted[0],
         "title": downvoted[1],
         "body": downvoted[2],
-        "downvotes": str(downvoted[3]+1)
+        "votes": str(downvoted[3]-1)
     }}), 201
 
 
@@ -134,16 +110,16 @@ def downvote_question(current_user, quiz_id):
 def comment_on_question(current_user, quiz_id):
     logged_user = User.query_username(current_user)
     try:
-        userComment = request.get_json()
-        if not userComment:
+        user_comment = request.get_json()
+        if not user_comment:
             abort(make_response(
                 jsonify({
                     "status": 400,
                     "error": "Missing comment data"}), 400))
-        validate = BaseValidation(userComment)
+        validate = BaseValidation(user_comment)
         validate.check_missing_fields(["comment"])
         validate.check_field_values_no_whitespace(["comment"])
-        comment = userComment["comment"]
+        comment = user_comment["comment"]
     except Exception:
         abort(make_response(
             jsonify({
@@ -209,4 +185,23 @@ def get_questions_for_one_meetup(current_user, meet_id):
         "status": 200,
         "meetup": current_meetup,
         "questions": serialized_questions
+    }), 200
+
+
+@q_blue.route('/questions/<quiz_id>/comments', methods=["GET"])
+@token_required
+def get_all_comments_on_question(current_user, quiz_id):
+    quiz_id = BaseValidation.confirm_ids(quiz_id)
+    the_question = Question.fetch_all_if_exists(
+        Question, 'questions', 'id', quiz_id)
+    comments = Question.fetch_all_if_exists(
+        Question, 'comments', 'question_id', quiz_id)
+    print(the_question)
+    print(comments)
+    the_question = Question.serialize_a_question(the_question)
+    comments = Comment.serialize_a_comment(comments)
+    return jsonify({
+        "status": 200,
+        "asked_question": the_question[0],
+        "comments": comments
     }), 200
