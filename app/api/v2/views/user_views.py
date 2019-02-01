@@ -23,13 +23,13 @@ def user_signup():
         return jsonify({"status": 204, "error": "No data was given"}), 204
     valid_user = UserValidation(user_data)
     valid_user.check_missing_fields(valid_user.signup_required)
-    firstname = user_data["firstname"]
-    lastname = user_data["lastname"]
-    othername = user_data["othername"]
-    phone = user_data["phone"]
-    email = user_data["email"]
-    username = user_data["username"]
-    password = user_data["password"]
+    firstname = user_data["firstname"].strip()
+    lastname = user_data["lastname"].strip()
+    othername = user_data["othername"].strip()
+    phone = user_data["phone"].strip()
+    email = user_data["email"].strip()
+    username = user_data["username"].strip()
+    password = user_data["password"].strip()
     username_taken = User.query_username(username)
     email_taken = User.query_email(email)
     if username_taken:
@@ -44,8 +44,10 @@ def user_signup():
     valid_user.validate_password()
     valid_user.validate_phone()
     valid_user.validate_names()
-    new_user = User([firstname, lastname, othername, username, email, password,
-                     phone])
+    gender = valid_user.accept_gender()
+    othername = valid_user.check_othername()
+    new_user = User([firstname, lastname, othername, username, email,
+                     password, phone])
     new_user.create_new_user()
     return jsonify({
         "status": 201, "message": "user created successfully"}), 201
