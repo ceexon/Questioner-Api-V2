@@ -17,7 +17,8 @@ def drop_table_if_exists():
     drop_rsvp = """ DROP TABLE IF EXISTS rsvp """
     drop_votes = """ DROP TABLE IF EXISTS votes """
 
-    return [drop_votes, drop_rsvp, drop_comments, drop_meetups, drop_questions, drop_users]
+    return [drop_votes, drop_rsvp, drop_comments, drop_meetups, drop_questions,
+            drop_users]
 
 
 def set_up_tables():
@@ -27,6 +28,8 @@ def set_up_tables():
         firstname VARCHAR(30) NOT NULL,
         lastname VARCHAR(30) NOT NULL,
         othername VARCHAR(30),
+        gender VARCHAR(3) NOT NULL,
+        image VARCHAR(200) NOT NULL,
         username VARCHAR(40) NOT NULL UNIQUE,
         email VARCHAR(60) NOT NULL UNIQUE,
         phone VARCHAR(20) NOT NULL,
@@ -89,12 +92,21 @@ def set_up_tables():
                user_id INTEGER NOT NULL,
                token VARCHAR(300) NOT NULL
            );"""
-    return [create_comment_table, create_meetups_table, create_questions_table, create_rsvp_table, create_users_table, create_votes_table, create_logout_blacklist]
+    return [create_comment_table, create_meetups_table, create_questions_table,
+            create_rsvp_table, create_users_table, create_votes_table,
+            create_logout_blacklist]
 
 
 def create_admin(connect):
     query = """
-    INSERT INTO users(firstname, lastname, othername, username, email, phone, password, publicId, register_date, isAdmin) VALUES('{}','{}','{}','admin','admin@admin.dns','0791000000','{}','{}','{}',True)""".format('admin', 'super', 'admin', generate_password_hash("$$PAss12"), str(uuid.uuid4()), datetime.datetime.utcnow())
+    INSERT INTO users(firstname, lastname, othername, username, email, phone,
+     password, publicId, register_date, isAdmin, gender, image)
+     VALUES('{}','{}','{}','admin','admin@admin.dns','0791000000','{}','{}',
+     '{}',True, '{}', '{}')""".format('admin', 'super', 'admin',
+                                      generate_password_hash(
+                                          "$$PAss12"), str(uuid.uuid4()),
+                                      datetime.datetime.utcnow(), "M",
+                                      "images/users/admin.png")
     get_admin = """SELECT * from users WHERE username = 'admin'"""
     cur = connect.cursor()
     get_admin = cur.execute(get_admin)
