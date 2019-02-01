@@ -8,7 +8,8 @@ class DatabaseConnection:
     """ Handles the main connection to the database of the app setting """
 
     def __init__(self, db_url):
-        """ initialize the class instance to take a database url as a parameter"""
+        """ initialize the class instance to take a database
+            url as a parameter"""
         try:
             global conn, cur
             conn = psycopg2.connect(db_url)
@@ -61,5 +62,40 @@ class DatabaseConnection:
                 "status": 404,
                 "message": "{} with {} '{}' not found".format(
                     table_name[0:-1], column_name, column_value),
-                "error": "data not found"})))
+                "error": "data not found"}), 404))
         return result
+
+    def get_specific_details(self, table_name, columns_list, select_column,
+                             column_value):
+        columns = ""
+        if len(columns_list) == 1:
+            columns = columns_list[0]
+        else:
+            columns = " ,".join(columns_list)
+
+        query = """
+        SELECT {} FROM {} WHERE {} = '{}'
+        """.format(columns, table_name, select_column, column_value)
+
+        cur.execute(query)
+        row = cur.fetchone()
+        if row:
+            return row
+
+        abort(make_response(jsonify({
+            "status": 404,
+            "message": "{} with {} '{}' not found".format(
+                table_name[0:-1], select_column, column_value),
+            "error": "data not found"}), 404))
+
+    def edit_specific_details(self, table_name, column_details, select_column,
+                              column_value):
+        to_change = column_details[0]
+        new_value = column_details[1]
+        query = """
+            UPDATE {} SET {} = '{}' WHERE {} = '{}'
+            """.format(
+            table_name,
+            select_column, to_change, new_value, select_column, column_value)
+        cur.execute(query)
+        conn.commit()
