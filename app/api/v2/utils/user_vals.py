@@ -11,6 +11,8 @@ class UserValidation(BaseValidation):
     signup_required = ["firstname", "lastname", "gender",
                        "phone", "email", "password", "username"]
     optional_field = ["othername"]
+    unchangable = ["firstname", "lastname", "othername", "gender"]
+    changable = ["phone", "email", "password", "username", "image"]
 
     def check_othername(self):
         try:
