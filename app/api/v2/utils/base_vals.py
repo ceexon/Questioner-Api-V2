@@ -23,7 +23,8 @@ class BaseValidation:
             return to_int
         except (TypeError, ValueError):
             abort(make_response(
-                jsonify({"status": 400, "error": "invalid id, use integer"}), 400))
+                jsonify({"status": 400, "error": "invalid id, use integer"}),
+                400))
 
     def check_missing_fields(self, required_fields):
         missing = []
@@ -35,7 +36,9 @@ class BaseValidation:
         if missing:
             missing = ", ".join(missing)
             abort(make_response(
-                jsonify({"status": 404, "error": missing+" field(s) not found"}), 404))
+                jsonify({
+                    "status": 404,
+                    "error": missing+" field(s) not found"}), 404))
 
     def null_field_check(self, req_fields):
         empty = []
@@ -45,7 +48,9 @@ class BaseValidation:
         if empty:
             empty = ", ".join(empty)
             abort(make_response(
-                jsonify({"status": 422, "message": empty+" field(s) can't be empty"}), 422))
+                jsonify({
+                    "status": 422,
+                    "message": empty+" field(s) can't be empty"}), 422))
 
     def check_field_values_no_whitespace(self, req_fields):
         self.null_field_check(req_fields)
