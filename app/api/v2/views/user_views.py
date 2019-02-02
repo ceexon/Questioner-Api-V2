@@ -83,6 +83,38 @@ def user_login():
                     "token": token.decode("utf-8", KEY)}), 200
 
 
+def catch_key_error(dictionary, value):
+    try:
+        if dictionary[value]:
+            pass
+    except KeyError:
+        pass
+
+
+@v2_blue.route("/reset-profile", methods=["PATCH"])
+@token_required
+def reset_profile(current_user):
+    try:
+        date_to_update = request.get_json()
+    except Exception:
+        abort(make_response(jsonify({
+            "status": 200,
+            "message": "NO changes made"}), 200))
+
+    valid_user = UserWarning(date_to_update)
+    unchangable = valid_user.unchangable
+    for value in unchangable:
+        if date_to_update[value].strip():
+            return jsonify({
+                "status": 403,
+                "error": "You cannot change " + value,
+                "unchangable": "firstname, lastname,othername, gender"}, 403)
+
+    # changable = valid_user.changable
+    # for value in changable:
+    #     catch_key_error()
+
+
 @v2_blue.route("/logout", methods=["POST"])
 @token_required
 def user_logout(current_user):
