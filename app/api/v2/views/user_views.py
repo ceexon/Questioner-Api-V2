@@ -47,7 +47,7 @@ def user_signup():
     gender = valid_user.accept_gender()
     othername = valid_user.check_othername()
     new_user = User([firstname, lastname, othername, username, email,
-                     password, phone])
+                     password, phone, gender])
     new_user.create_new_user()
     return jsonify({
         "status": 201, "message": "user created successfully"}), 201

@@ -8,7 +8,27 @@ from ..models.meetup import Meetup
 
 class MeetValid(BaseValidation):
     """ validating meetup data """
-    required_meetup = ["topic", "location", "happen_on", ""]
+    required_meetup = ["topic", "location", "happen_on", "description"]
+
+    def check_in_list(self, list_name, table_name):
+        if len(list_name) == 1:
+            if not list_name[0]:
+                abort(make_response(jsonify({
+                    "status": 400,
+                    "error": "tags or image field is empty",
+                    "message": "tags(#aTag) image(path url)"
+                }), 422))
+
+    def tags_and_image(self):
+        if not self.data["tags"] or not self.data["image"]:
+            abort(make_response(jsonify({
+                "status": 400,
+                "error": "tags or image field is empty",
+                "message": "tags(#aTag) image(path url)"
+            }), 422))
+
+        self.check_in_list(self.data["tags"], "tags")
+        self.check_in_list(self.data["image"], "image")
 
     @staticmethod
     def prevent_duplication(meetup):
@@ -20,8 +40,8 @@ class MeetValid(BaseValidation):
             if meet["location"] == meetup["location"] and meet["happen_on"] == happen_on:
                 abort(make_response(jsonify({
                     "status": "409",
-                    "error": "You may be trying to duplicate a meetup, one with same time and location exists"}), 409))
-        pass
+                    "error": "You may be trying to duplicate a meetup, one with same time and location exists"}),
+                    409))
 
     @staticmethod
     def validate_meetup_date_input(date_string):

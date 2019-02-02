@@ -27,7 +27,8 @@ class BaseTest(unittest.TestCase):
             "username": "toovor",
             "email": "jjj@djjd.dd",
             "phone": "+09778789847",
-            "password": "$$22BBkk"
+            "password": "$$22BBkk",
+            "gender": "m"
         }
 
         self.delete_after_login = {
@@ -37,7 +38,8 @@ class BaseTest(unittest.TestCase):
             "username": "missme",
             "email": "missme@djjd.dd",
             "phone": "+09778789847",
-            "password": "$$22BBkk"
+            "password": "$$22BBkk",
+            "gender": "male"
         }
 
         self.miss_signup = {
@@ -46,27 +48,34 @@ class BaseTest(unittest.TestCase):
             "othername": "missme",
             "username": "toovor",
             "phone": "+09778789847",
-            "password": "$$22BBkk"
+            "password": "$$22BBkk",
+            "gender": "female"
         }
 
         self.meetup_to_delete = {
             "topic": "Formlessly",
             "location": "Nairobi Kenya",
             "happen_on": "09/04/2029/1600HRS",
-            "tags": ["#meetme", "#works well"]
+            "tags": ["#meetme", "#works well"],
+            "image": ["meet_url"],
+            "description": "description"
         }
 
         self.meetup_ok = {
-            "topic": "Formless",
-            "location": "Nairobi ",
-            "happen_on": "09/04/2019/1600HRS",
-            "tags": ["#meetme", "#works well"]
+            "topic": "Meetup tonight",
+            "location": "Tonight Home MY",
+            "happen_on": "03/25/2019 10:46",
+            "tags": ["#monkey", "#money"],
+            "image": ["url"],
+            "description": "description"
         }
 
         self.meetup_no_topic = {
             "location": "Nairobi ",
             "happen_on": "09/04/2019/1600HRS",
-            "tags": ["#meetme", "#works well"]
+            "tags": ["#meetme", "#works well"],
+            "image": ["url"],
+            "description": "description"
         }
 
         self.question_ask = {
@@ -98,7 +107,7 @@ class UserSignUp(BaseTest):
             errorNames["error"], 'invalid naming format')
         self.assertEqual(
             errorNames["message"],
-            'first, last and other name can only contain letters')
+            'first and last name can only contain letters')
         self.assertEqual(response.status_code, 422)
 
         """user signup success """

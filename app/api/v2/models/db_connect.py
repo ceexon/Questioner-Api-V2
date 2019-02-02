@@ -46,6 +46,7 @@ def set_up_tables():
           location VARCHAR(200) NOT NULL,
           happen_on VARCHAR(20) NOT NULL,
           tags VARCHAR(200) NOT NULL,
+          description VARCHAR NOT NULL,
           image VARCHAR(200) NOT NULL,
           created_on TIMESTAMP);"""
 
