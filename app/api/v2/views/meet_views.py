@@ -27,13 +27,15 @@ def create_meetup(current_user):
         happen_on = meetup_data['happen_on']
         location = meetup_data['location']
         tags = meetup_data['tags']
+        image = meetup_data['image']
 
     except KeyError:
         return jsonify({
             'status': 400,
-            'error': 'missing either (topic,happen_on,location or tags)'}), 400
+            'error': 'missing either (topic,happen_on,location, image or tags)'
+        }), 400
 
-    validate = BaseValidation(meetup_data)
+    validate = MeetValid(meetup_data)
     validate.check_field_values_no_whitespace(
         ["topic", "happen_on", "location"])
 
@@ -41,11 +43,11 @@ def create_meetup(current_user):
         abort(make_response(jsonify({
             'status': 400,
             'error': 'tags field is required'}), 400))
-
+    validate.tags_and_image()
     MeetValid.prevent_duplication(meetup_data)
     user_id = logged_user[0]
     happen_on = MeetValid.validate_meetup_date_input(happen_on)
-    meetup = Meetup([topic, happen_on, location, tags, user_id])
+    meetup = Meetup([topic, happen_on, location, tags, user_id, image])
     meetup.save_meetup()
 
     return jsonify({"status": 201,
