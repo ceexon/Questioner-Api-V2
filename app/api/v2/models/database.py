@@ -90,8 +90,10 @@ class DatabaseConnection:
 
     def edit_specific_details(self, table_name, column_details, select_column,
                               column_value):
-        to_change = column_details[0]
-        new_value = column_details[1]
+        columns_to_alter = []
+        for pair in column_details:
+            columns_to_alter.append(pair[0])
+
         query = """
             UPDATE {} SET {} = '{}' WHERE {} = '{}'
             """.format(
