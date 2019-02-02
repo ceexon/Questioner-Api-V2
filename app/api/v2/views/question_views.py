@@ -10,23 +10,23 @@ from ..utils.question_vals import QuestionValid
 q_blue = Blueprint("que_bl", __name__)
 
 
-@q_blue.route('/questions', methods=["POST"])
+@q_blue.route('/meetups/<meet_id>/questions', methods=["POST"])
 @token_required
-def ask_question(current_user):
+def ask_question(current_user, meet_id):
     logged_user = User.query_username(current_user)
     try:
         que_data = request.get_json()
 
-    except TypeError as error:
+    except Exception as error:
         return jsonify({"status": 400,
                         "message": "no data was found", "error": error}), 400
     valid_que = QuestionValid(que_data)
     valid_que.check_missing_fields(valid_que.question_required)
     valid_que.check_field_values_no_whitespace(valid_que.question_required)
-    meet_id = que_data["meetup"]
     body = que_data["body"]
     meet_id = QuestionValid.confirm_ids(meet_id)
     meetup = Meetup.get_meetup(meet_id, "id")
+    print(meetup)
     if not meetup:
         return jsonify({
             "status": 404,
@@ -38,6 +38,8 @@ def ask_question(current_user):
             "error": "this meetup has already been conducted"
         })
     exists = Question.get_by_(meetup[0], "meetup_id")
+    print(exists)
+    print((meet_id, body))
     if (meet_id, body) == exists:
         return jsonify({
             "status": 403,
@@ -76,9 +78,9 @@ def voting_action(current_user, quiz_id, upvote, downvote):
     else:
         all_init_votes = all_init_votes
     new_vote = Voting([user_id, meetup, question_id,
-                      upvote, downvote, all_init_votes])
+                       upvote, downvote, all_init_votes])
     new_vote.update_to_votes()
-    return [meetup,title,body,all_init_votes]
+    return [meetup, title, body, all_init_votes]
 
 
 @q_blue.route('/questions/<quiz_id>/upvote', methods=["PATCH"])
