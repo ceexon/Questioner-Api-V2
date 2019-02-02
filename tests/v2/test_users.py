@@ -57,7 +57,8 @@ class BaseTest(unittest.TestCase):
             "location": "Nairobi Kenya",
             "happen_on": "09/04/2029/1600HRS",
             "tags": ["#meetme", "#works well"],
-            "image": ["meet_url"]
+            "image": ["meet_url"],
+            "description": "description"
         }
 
         self.meetup_ok = {
@@ -65,14 +66,16 @@ class BaseTest(unittest.TestCase):
             "location": "Tonight Home MY",
             "happen_on": "03/25/2019 10:46",
             "tags": ["#monkey", "#money"],
-            "image": ["url"]
+            "image": ["url"],
+            "description": "description"
         }
 
         self.meetup_no_topic = {
             "location": "Nairobi ",
             "happen_on": "09/04/2019/1600HRS",
             "tags": ["#meetme", "#works well"],
-            "image": ["url"]
+            "image": ["url"],
+            "description": "description"
         }
 
         self.question_ask = {

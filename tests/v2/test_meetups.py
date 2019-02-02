@@ -199,7 +199,6 @@ class MeetupTest(BaseTest):
             "api/v2/meetups/1", headers={"x-access-token": admin_token})
 
         dat_error = json.loads(response.data.decode("utf-8"))
-        print("\n\n", dat_error, "\n\n")
         self.assertEqual(response.status_code, 200)
 
         """ test rsvp no status """
