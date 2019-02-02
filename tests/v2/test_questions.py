@@ -20,7 +20,8 @@ class TestQuestions(BaseTest):
             "firstname": "burudi",
             "lastname": "zonecc",
             "othername": "BK",
-                        "username": "kurlandss",
+            "username": "kurlandss",
+            "gender": "m",
             "email": "kurlandss@zonecc.bk",
             "phone": "+09778789847",
             "password": "$$22BBkk"
@@ -46,7 +47,7 @@ class TestQuestions(BaseTest):
 
         """ test a meetup id not found post """
         response = self.client.post(
-            "/api/v2/questions",
+            "/api/v2/meetups/10/questions",
             data=json.dumps(self.question_ask), headers={
                 "x-access-token": self.admin_login()},
             content_type="application/json")
@@ -56,7 +57,7 @@ class TestQuestions(BaseTest):
 
         """ test a successful post """
         response = self.client.post(
-            "/api/v2/questions",
+            "/api/v2/meetups/1/questions",
             data=json.dumps(self.right_meetup_id_added), headers={
                 "x-access-token": self.admin_login()},
             content_type="application/json")
@@ -66,7 +67,7 @@ class TestQuestions(BaseTest):
 
         """ test a try to duplicate post """
         response = self.client.post(
-            "/api/v2/questions",
+            "/api/v2/meetups/1/questions",
             data=json.dumps(self.right_meetup_id_added), headers={
                 "x-access-token": self.admin_login()},
             content_type="application/json")
@@ -81,6 +82,7 @@ class TestQuestions(BaseTest):
             headers={
                 "x-access-token": self.sign_login_local()})
         result = json.loads(response.data.decode("utf-8"), secret)
+        print("\n\n", result, "\n\n")
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
 

@@ -23,7 +23,8 @@ class MeetupTest(BaseTest):
             "username": "kurlandss",
             "email": "kurlandss@zonecc.bk",
             "phone": "+09778789847",
-            "password": "$$22BBkk"
+            "password": "$$22BBkk",
+            "gender": "m"
         }
         self.client.post(
             "api/v2/auth/signup",
@@ -78,8 +79,9 @@ class MeetupTest(BaseTest):
             headers={"x-access-token": admin_token},
             content_type="application/json")
         created = json.loads(response.data.decode("utf-8", secret))
-        self.assertEqual(created["error"],
-                         "missing either (topic,happen_on,location or tags)")
+        self.assertEqual(
+            created["error"],
+            "missing either (topic,happen_on,location, image or tags)")
         self.assertEqual(response.status_code, 400)
 
         """ test when tags is empty """
@@ -195,6 +197,9 @@ class MeetupTest(BaseTest):
         admin_token = self.admin_login()
         response = self.client.get(
             "api/v2/meetups/1", headers={"x-access-token": admin_token})
+
+        dat_error = json.loads(response.data.decode("utf-8"))
+        print("\n\n", dat_error, "\n\n")
         self.assertEqual(response.status_code, 200)
 
         """ test rsvp no status """
@@ -211,7 +216,8 @@ class MeetupTest(BaseTest):
         response = self.client.post(
             "api/v2/meetups/1/rsvp",
             headers={"x-access-token": admin_token},
-            data=json.dumps({"status": "fruit"}), content_type="application/json")
+            data=json.dumps({"status": "fruit"}),
+            content_type="application/json")
         error_message = json.loads(response.data.decode("utf-8"))
         self.assertEqual(
             error_message["error"],
