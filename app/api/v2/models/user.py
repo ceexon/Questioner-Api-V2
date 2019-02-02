@@ -20,6 +20,8 @@ class User(db_conn):
         self.email = userData[4]
         self.password = generate_password_hash(str(userData[5]))
         self.phone = userData[6]
+        self.gender = userData[7]
+        self.image = "url"
         self.publicId = str(uuid.uuid4())
         self.now = TIME_NOW
         self.isAdmin = isAdmin
@@ -27,12 +29,14 @@ class User(db_conn):
     def create_new_user(self):
         """ creates/adds a new user to the users table"""
         query = """
-			INSERT INTO users(firstname, lastname, othername, 
-            username, email, phone, password, publicId,
-            register_date) VALUES(
-			'{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}')
-            """.format(self.fname, self.lname, self.other, self.uname,
-                       self.email, self.phone, self.password, self.publicId, self.now)
+        INSERT INTO users(firstname, lastname, othername, gender, image,
+        username, email, phone, password, publicId,
+        register_date) VALUES(
+        '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}')
+        """.format(self.fname, self.lname, self.other, self.gender,
+                   self.image, self.uname,
+                   self.email, self.phone, self.password,
+                   self.publicId, self.now)
         self.save_incoming_data_or_updates(query)
 
     def get_all_users(self):
@@ -71,17 +75,18 @@ class User(db_conn):
 
     def update_user_info(self, user_id):
         query = """ UPDATE users SET
-			firstname = '{}',
-			lastname = '{}',
-			othername = '{}',
-			username = '{}',
-			email = '{}',
-			password = '{}',
-			phone = '{}',
-			isAdmin = '{}'
-			WHERE publicId = {}
-		""".format(self.fname, self.lname, self.other, self.uname,
-             self.email, self.password, self.phone, self.isAdmin, user_id)
+        firstname = '{}',
+        lastname = '{}',
+        othername = '{}',
+        username = '{}',
+        email = '{}',
+        password = '{}',
+        phone = '{}',
+        isAdmin = '{}'
+        WHERE publicId = {}
+        """.format(self.fname, self.lname, self.other, self.uname,
+                   self.email, self.password,
+                   self.phone, self.isAdmin, user_id)
         self.save_incoming_data_or_updates(query)
 
     def delete_user(self, p_id):
@@ -120,8 +125,8 @@ class LogoutBlacklist(db_conn):
 
     def add_to_blacklist(self):
         query = """
-			INSERT INTO blacklists(user_id, token)
-            VALUES('{}','{}')""".format(self.user, self.token)
+        INSERT INTO blacklists(user_id, token)
+        VALUES('{}','{}')""".format(self.user, self.token)
         self.save_incoming_data_or_updates(query)
 
     @staticmethod
