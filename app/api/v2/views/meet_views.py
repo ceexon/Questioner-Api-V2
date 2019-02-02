@@ -28,6 +28,7 @@ def create_meetup(current_user):
         location = meetup_data['location']
         tags = meetup_data['tags']
         image = meetup_data['image']
+        description = meetup_data['description']
 
     except KeyError:
         return jsonify({
@@ -47,14 +48,16 @@ def create_meetup(current_user):
     MeetValid.prevent_duplication(meetup_data)
     user_id = logged_user[0]
     happen_on = MeetValid.validate_meetup_date_input(happen_on)
-    meetup = Meetup([topic, happen_on, location, tags, user_id, image])
+    meetup = Meetup([topic, happen_on, location, tags, user_id,
+                     image, description])
     meetup.save_meetup()
 
     return jsonify({"status": 201,
                     "data": [{"topic": topic,
                               "location": location,
                               "meetup_date": happen_on,
-                              "tags": tags}]}), 201
+                              "tags": tags,
+                              "description": description}]}), 201
 
 
 @v_blue.route("/meetups", methods=["GET"])
