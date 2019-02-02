@@ -15,6 +15,7 @@ class Meetup(db_conn):
         self.tags = json.dumps(theMeetup[3])
         self.user_id = theMeetup[4]
         self.image = json.dumps(theMeetup[5])
+        self.desc = theMeetup[6]
         self.created_on = datetime.datetime.now()
 
     def save_meetup(self):
@@ -23,10 +24,11 @@ class Meetup(db_conn):
         """
         query = """
         INSERT INTO meetups(topic, location, happen_on, tags, created_on,
-         user_id, image) VALUES(
-            '{}', '{}', '{}', '{}', '{}', '{}', '{}'
+         user_id, image, description) VALUES(
+            '{}', '{}', '{}', '{}', '{}', '{}', '{}','{}'
         )""".format(self.topic, self.location, self.happen_on,
-                    self.tags, self.created_on, self.user_id, self.image)
+                    self.tags, self.created_on, self.user_id, self.image,
+                    self.desc)
         self.save_incoming_data_or_updates(query)
 
     @staticmethod
@@ -54,8 +56,9 @@ class Meetup(db_conn):
             "location": meet_tuple[3],
             "happen_on": meet_tuple[4],
             "tags": json.loads(meet_tuple[5]),
-            "image": json.loads(meet_tuple[6]),
-            "created_on": meet_tuple[7]
+            "description": meet_tuple[6],
+            "image": json.loads(meet_tuple[7]),
+            "created_on": meet_tuple[8]
         }
 
         return a_meet
