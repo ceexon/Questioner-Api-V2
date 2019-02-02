@@ -14,6 +14,7 @@ class Meetup(db_conn):
         self.location = theMeetup[2]
         self.tags = json.dumps(theMeetup[3])
         self.user_id = theMeetup[4]
+        self.image = json.dumps(theMeetup[5])
         self.created_on = datetime.datetime.now()
 
     def save_meetup(self):
@@ -21,9 +22,11 @@ class Meetup(db_conn):
         saves new meetup to store
         """
         query = """
-        INSERT INTO meetups(topic, location, happen_on, tags, created_on, user_id) VALUES(
-            '{}', '{}', '{}', '{}', '{}', '{}'
-        )""".format(self.topic, self.location, self.happen_on, self.tags, self.created_on, self.user_id)
+        INSERT INTO meetups(topic, location, happen_on, tags, created_on,
+         user_id, image) VALUES(
+            '{}', '{}', '{}', '{}', '{}', '{}', '{}'
+        )""".format(self.topic, self.location, self.happen_on,
+                    self.tags, self.created_on, self.user_id, self.image)
         self.save_incoming_data_or_updates(query)
 
     @staticmethod
@@ -51,7 +54,8 @@ class Meetup(db_conn):
             "location": meet_tuple[3],
             "happen_on": meet_tuple[4],
             "tags": json.loads(meet_tuple[5]),
-            "created_on": meet_tuple[6]
+            "image": json.loads(meet_tuple[6]),
+            "created_on": meet_tuple[7]
         }
 
         return a_meet
@@ -92,7 +96,8 @@ class Rsvp(Meetup):
         query = """
             INSERT INTO rsvp(user_id,meetup_id,meetup_topic,value,responded_at)
             values('{}','{}','{}','{}','{}')
-        """.format(self.user, self.meet, self.topic, self.status, self.responded_at)
+        """.format(self.user, self.meet, self.topic, self.status,
+                   self.responded_at)
         self.save_incoming_data_or_updates(query)
 
     def format_rsvp(self, rsvp_tuple):
