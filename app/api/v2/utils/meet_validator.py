@@ -8,7 +8,7 @@ from ..models.meetup import Meetup
 
 class MeetValid(BaseValidation):
     """ validating meetup data """
-    required_meetup = ["topic", "location", "happen_on"]
+    required_meetup = ["topic", "location", "happen_on", "description"]
 
     def check_in_list(self, list_name, table_name):
         if len(list_name) == 1:
