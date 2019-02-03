@@ -69,13 +69,15 @@ class UserValidation(BaseValidation):
             abort(make_response(
                 jsonify({
                     "status": 422,
-                    "message": "phone number length invalid(11-13)"}), 422))
+                    "message": "phone number length invalid(11-13)",
+                    "error" : "invalid phone number"}), 422))
         elif phone[0].isdigit() and phone.isdigit():
             if not len(phone) == 10:
                 abort(make_response(
                     jsonify({
                         "status": 422,
-                        "message": "phone number length invalid(10)"}), 422))
+                        "message": "phone number length invalid(10)",
+                    "error" : "invalid phone number"}), 422))
 
     def validate_phone(self):
         phone = self.data["phone"].strip()
@@ -83,13 +85,15 @@ class UserValidation(BaseValidation):
         if phone[0] == "+" and not phone[1:].isdigit():
             abort(make_response(jsonify({
                 "status": 422,
-                "message": "phone number can only be digits after '+'"}), 422))
+                "message": "phone number can only be digits after '+'",
+                    "error" : "invalid phone number"}), 422))
         elif (phone[0] == "+" and phone[1:].isdigit()) or phone.isdigit():
             phone = True
         elif not phone[0].isdigit() or not phone[0] == "+":
             abort(make_response(jsonify({
                 "status": 422,
-                "message": "phone number can start with '+' and have digits"}),
+                "message": "phone number can start with '+' and have digits",
+                    "error" : "invalid phone number"}),
                 422))
 
     def valid_username(self):
@@ -99,9 +103,9 @@ class UserValidation(BaseValidation):
         if re.search("[!@#$%^&*-/\\')(;\"`<>?:|}{~ ]", username):
             abort(make_response(
                 jsonify({
-                    "status": 400,
+                    "status": 422,
                     "error": "username can only be a letter, digit or _"}),
-                400))
+                422))
 
     def validate_password(self):
         pwd = phone = self.data["password"].strip()
@@ -134,5 +138,6 @@ class UserValidation(BaseValidation):
         if not EMAIL_REGEX.match(email):
             abort(make_response(jsonify({
                 "status": 422,
-                "error": "invalid email format!! -> (example@mail.com)"}),
+                "error": "invalid email format!! -> (example@mail.com)",
+                "message": "bad email format"}),
                 422))
