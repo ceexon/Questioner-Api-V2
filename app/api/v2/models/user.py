@@ -21,7 +21,10 @@ class User(db_conn):
         self.password = generate_password_hash(str(userData[5]))
         self.phone = userData[6]
         self.gender = userData[7]
-        self.image = "url"
+        if self.gender == "M":
+            self.image = "images/user-icons/boy-user-1.png"
+        elif self.gender == "F":
+            self.image = "images/user-icons/girl-user-1.png"
         self.publicId = str(uuid.uuid4())
         self.now = TIME_NOW
         self.isAdmin = isAdmin
