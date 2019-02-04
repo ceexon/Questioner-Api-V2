@@ -200,7 +200,7 @@ class UserSignUp(BaseTest):
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.success_signup),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 422)
         errorInvalidUsername = json.loads(
             response.data.decode("utf-8", secret))
         self.assertEqual(
