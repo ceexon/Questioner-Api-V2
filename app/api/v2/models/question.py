@@ -36,13 +36,13 @@ class Question(db_conn):
         return serial_question_list
 
     @staticmethod
-    def get_by_(value, search_by):
+    def get_by_(value, search_by, question_body):
         """ get a specific question using its <your choice> """
         query = """
         SELECT meetup_id,body FROM questions
-        WHERE {} = '{}'""".format(search_by, value)
-        meetup = db_conn.fetch_single_data_row(db_conn, query)
-        return meetup
+        WHERE {} = '{}' AND body = '{}'""".format(search_by, value, question_body)
+        question = db_conn.fetch_single_data_row(db_conn, query)
+        return question
 
     @staticmethod
     def get_all_by_meetup_id(value):
