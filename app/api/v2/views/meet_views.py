@@ -96,13 +96,26 @@ def get_all_upcoming():
     return jsonify({"status": 200, "data": upcoming_meetups}), 200
 
 
+def count_rsvp(meet_id):
+    yes_count = Rsvp.get_rsvps_count("YES", meet_id)
+    no_count = Rsvp.get_rsvps_count("NO", meet_id)
+    maybe_count = Rsvp.get_rsvps_count("MAYBE", meet_id)
+    rsvp_info = {
+        "YES": yes_count,
+        "NO": no_count,
+        "MAYBE": maybe_count}
+    return(rsvp_info)
+
+
 @v_blue.route("/meetups/<meet_id>", methods=["GET"])
 def get_by_id(meet_id):
     meet_id = BaseValidation.confirm_ids(meet_id)
     meetup = Meetup.get_meetup(meet_id, "id")
     if meetup:
+        rsvpData = count_rsvp(meet_id)
         meetup = Meetup.format_meet_info(meetup)
-        return jsonify({"status": 200, "data": meetup}), 200
+        return jsonify({"status": 200, "data": meetup,
+                        "RSVPs": rsvpData}), 200
     return jsonify({
         "status": 404,
         "error": "Mettup with id {} not found".format(meet_id)}), 404
@@ -129,10 +142,8 @@ def meetup_rsvp(current_user, meet_id):
         return jsonify({
             "status": 404,
             "error": "Mettup with id {} not found".format(meet_id)}), 404
-    print("\n\n")
     time_passed = timestring.Date(meetup[4]) < datetime.datetime.now()
     if time_passed:
-        print("skipped")
         abort(make_response(jsonify({
             "status": 400,
             "error": "Invalid meetup",
@@ -159,24 +170,31 @@ def meetup_rsvp(current_user, meet_id):
     if user_rsvped:
         rsvp_status = user_rsvped[2]
         if rsvp_status == response:
+            rsvp_info = count_rsvp(meet_id)
             return jsonify({
                 "status": 403,
-                "error": "RSVP is only once, try updating status"}), 403
+                "error": "RSVP is only once, try updating status",
+                "rsvpData": rsvp_info}), 403
         else:
             Rsvp.update_rsvp_value(user_id, meet_id, response)
+            rsvp_info = count_rsvp(meet_id)
             return jsonify({
                 "status": 201, "message": "response received", "data": {
                     "meetup": meet_id,
                     "topic": topic,
                     "status": response
-                }}), 201
+                },
+                "rsvpData": rsvp_info}), 201
     rsvp = Rsvp([user_id, meet_id, topic, response])
     rsvp.save_rsvp()
+    rsvp_info = count_rsvp(meet_id)
     return jsonify({"status": 201, "message": "response received", "data": {
         "meetup": meet_id,
         "topic": topic,
-        "status": response
-    }}), 201
+        "status": response,
+    },
+        "rsvpData": rsvp_info
+    }), 201
 
 
 @v_blue.route("/meetups/<meet_id>", methods=["DELETE"])
