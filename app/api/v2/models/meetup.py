@@ -90,9 +90,9 @@ class Meetup(db_conn):
 class Rsvp(Meetup):
     def __init__(self, rsvpToPost):
         self.user = rsvpToPost[0]
-        self.meet = rsvpToPost[0]
-        self.topic = rsvpToPost[0]
-        self.status = rsvpToPost[0]
+        self.meet = rsvpToPost[1]
+        self.topic = rsvpToPost[2]
+        self.status = rsvpToPost[3]
         self.responded_at = datetime.datetime.utcnow()
 
     def save_rsvp(self):
@@ -115,11 +115,20 @@ class Rsvp(Meetup):
         return rsvp
 
     @staticmethod
-    def get_rsvp_by(meet_id, search_by):
+    def get_rsvp_by(meet_id, user_id, search_by):
         """ get a specific rsvp meetup using its id """
         query = """
-        SELECT user_id FROM rsvp
-        WHERE {} = '{}'""".format(search_by, meet_id)
+        SELECT user_id,meetup_id,value FROM rsvp
+        WHERE {} = '{}' AND user_id = '{}'""".format(search_by, meet_id,
+                                                     user_id)
 
-        meetup = db_conn.fetch_all_tables_rows(db_conn, query)
+        meetup = db_conn.fetch_single_data_row(db_conn, query)
         return meetup
+
+    @staticmethod
+    def update_rsvp_value(user_id, meet_id, value):
+        """ update user rsvp value """
+        query = """
+        UPDATE rsvp SET value = '{}' WHERE user_id = '{}' AND meetup_id = '{}'
+        """.format(value, user_id, meet_id)
+        db_conn.save_incoming_data_or_updates(db_conn, query)
