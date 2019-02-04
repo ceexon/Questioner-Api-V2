@@ -69,9 +69,10 @@ def user_login():
     username = log_data["username"]
     password = log_data["password"]
     user_found = User.query_username(username)
+    print(user_found)
     if not user_found:
         return jsonify({"status": 401, "error": "unregistered username"}), 401
-    if not check_password_hash(user_found[-2], password):
+    if not check_password_hash(user_found[-3], password):
         return jsonify({"status": 401, "error": "incorrect password"}), 401
 
     exp = datetime.datetime.utcnow() + datetime.timedelta(minutes=120)
