@@ -151,17 +151,26 @@ def meetup_rsvp(current_user, meet_id):
     else:
         return jsonify({
             "status": 400,
-            "error": "invalid choice. Status response is limited to 'yes/maybe/no'"}), 400
-
-    rsvped = Rsvp.get_rsvp_by(user_id, "user_id")
-    print(rsvped)
-    if (user_id,) in rsvped:
-        return jsonify({
-            "status": 403,
-            "error": "RSVP is only once, try updating status"}), 403
+            "error": "invalid choice. Status response is limited to 'yes/maybe/no'"}
+        ), 400
     meetup = Meetup.format_meet_info(meetup)
     topic = meetup["topic"]
-    rsvp = Rsvp([user_id, meet_id, topic, status])
+    user_rsvped = Rsvp.get_rsvp_by(meet_id, user_id, "meetup_id")
+    if user_rsvped:
+        rsvp_status = user_rsvped[2]
+        if rsvp_status == response:
+            return jsonify({
+                "status": 403,
+                "error": "RSVP is only once, try updating status"}), 403
+        else:
+            Rsvp.update_rsvp_value(user_id, meet_id, response)
+            return jsonify({
+                "status": 201, "message": "response received", "data": {
+                    "meetup": meet_id,
+                    "topic": topic,
+                    "status": response
+                }}), 201
+    rsvp = Rsvp([user_id, meet_id, topic, response])
     rsvp.save_rsvp()
     return jsonify({"status": 201, "message": "response received", "data": {
         "meetup": meet_id,
