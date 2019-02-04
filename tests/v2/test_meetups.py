@@ -238,7 +238,7 @@ class MeetupTest(BaseTest):
             data=json.dumps({"status": "y"}), content_type="application/json")
         self.assertEqual(response.status_code, 201)
 
-        """ test try to meetup again yes"""
+        """ test try to rsv again yes"""
         response = self.client.post(
             "api/v2/meetups/1/rsvp", headers={"x-access-token": admin_token},
             data=json.dumps({"status": "y"}), content_type="application/json")
@@ -247,20 +247,20 @@ class MeetupTest(BaseTest):
                          "RSVP is only once, try updating status")
         self.assertEqual(response.status_code, 403)
 
-        """ test try to meetup again maybe"""
-        response = self.client.post(
-            "api/v2/meetups/1/rsvp", headers={"x-access-token": admin_token},
-            data=json.dumps({"status": "maybe"}), content_type="application/json")
-        error_message = json.loads(response.data.decode("utf-8"))
-        self.assertEqual(error_message["error"],
-                         "RSVP is only once, try updating status")
-        self.assertEqual(response.status_code, 403)
-
-        """ test try to meetup again no"""
+        """ test try to rsv again no"""
         response = self.client.post(
             "api/v2/meetups/1/rsvp", headers={"x-access-token": admin_token},
             data=json.dumps({"status": "n"}), content_type="application/json")
         error_message = json.loads(response.data.decode("utf-8"))
-        self.assertEqual(error_message["error"],
-                         "RSVP is only once, try updating status")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(error_message["message"],
+                         "response received")
+        self.assertEqual(response.status_code, 201)
+
+        """ test try to rsv again maybe"""
+        response = self.client.post(
+            "api/v2/meetups/1/rsvp", headers={"x-access-token": admin_token},
+            data=json.dumps({"status": "maybe"}), content_type="application/json")
+        error_message = json.loads(response.data.decode("utf-8"))
+        self.assertEqual(error_message["message"],
+                         "response received")
+        self.assertEqual(response.status_code, 201)
