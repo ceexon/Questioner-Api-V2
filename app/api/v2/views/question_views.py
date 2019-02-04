@@ -14,6 +14,8 @@ q_blue = Blueprint("que_bl", __name__)
 @token_required
 def ask_question(current_user, meet_id):
     logged_user = User.query_username(current_user)
+    user_image = logged_user[-2]
+    user_name = logged_user[1]
     try:
         que_data = request.get_json()
 
@@ -26,7 +28,6 @@ def ask_question(current_user, meet_id):
     body = que_data["body"]
     meet_id = QuestionValid.confirm_ids(meet_id)
     meetup = Meetup.get_meetup(meet_id, "id")
-    print(meetup)
     if not meetup:
         return jsonify({
             "status": 404,
@@ -37,10 +38,9 @@ def ask_question(current_user, meet_id):
             "status": 400,
             "error": "this meetup has already been conducted"
         })
-    exists = Question.get_by_(meetup[0], "meetup_id")
-    print(exists)
-    print((meet_id, body))
-    if (meet_id, body) == exists:
+    exists = Question.get_by_(logged_user[0], "user_id", body)
+
+    if exists:
         return jsonify({
             "status": 403,
             "error": "A similar question already exists"}), 403
@@ -57,6 +57,10 @@ def ask_question(current_user, meet_id):
                         "meetup": meetup,
                         "title": quest_title,
                         "body": quest_body
+                    },
+                    "asker":{
+                    "username": user_name,
+                    "image": user_image
                     }}), 201
 
 
@@ -147,9 +151,7 @@ def comment_on_question(current_user, quiz_id):
 
 
 @q_blue.route('/meetups/<meet_id>/questions', methods=["GET"])
-@token_required
-def get_questions_for_one_meetup(current_user, meet_id):
-    logged_user = User.query_username(current_user)
+def get_questions_for_one_meetup(meet_id):
     meet_id = BaseValidation.confirm_ids(meet_id)
     meetups = Meetup.get_all_meetups()
     current_meetup = {}
@@ -157,24 +159,12 @@ def get_questions_for_one_meetup(current_user, meet_id):
         if meetup["id"] == meet_id:
             current_meetup = meetup
     all_meetup_questions = Question.get_all_by_meetup_id(meet_id)
-    print(current_meetup)
     serialized_questions = []
-    current_question = {}
 
     if not current_meetup:
         abort(make_response(jsonify({
             "status": 404,
             "error": "Meetup with id {} not found".format(meet_id)}), 404))
-
-    for question in all_meetup_questions:
-        if question:
-            current_question["id"] = question[0]
-            current_question["user id"] = question[1]
-            current_question["meetup id"] = question[2]
-            current_question["title"] = question[3]
-            current_question["body"] = question[4]
-            serialized_questions.append(current_question)
-
     if not all_meetup_questions:
         serialized_questions = ["NO questions asked yet"]
         return jsonify({
@@ -182,6 +172,20 @@ def get_questions_for_one_meetup(current_user, meet_id):
             "meetup": current_meetup,
             "questions": serialized_questions
         }), 404
+
+    for index, question in enumerate(all_meetup_questions):
+            current_question = {}
+            current_question["id"] = question[0]
+            current_question["user id"] = question[1]
+            current_user = User.query_by_id(question[1])
+            user_data = {}
+            user_data["username"] = current_user[0]
+            user_data["image"] = current_user[1]
+            current_question["meetup id"] = question[2]
+            current_question["title"] = question[3]
+            current_question["body"] = question[4]
+            current_question["asker"] = user_data
+            serialized_questions.append(current_question)
 
     return jsonify({
         "status": 200,
@@ -198,8 +202,6 @@ def get_all_comments_on_question(current_user, quiz_id):
         Question, 'questions', 'id', quiz_id)
     comments = Question.fetch_all_if_exists(
         Question, 'comments', 'question_id', quiz_id)
-    print(the_question)
-    print(comments)
     the_question = Question.serialize_a_question(the_question)
     comments = Comment.serialize_a_comment(comments)
     return jsonify({

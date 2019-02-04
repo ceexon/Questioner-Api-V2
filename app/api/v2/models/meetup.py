@@ -98,13 +98,10 @@ class Rsvp(Meetup):
     @staticmethod
     def get_rsvps_count(value, meetup_id):
         """ get rsvps to specific meetup by value """
-        print("rsvps out")
         query = """
             SELECT * FROM rsvp WHERE meetup_id = '{}' AND value = '{}'
         """.format(meetup_id, value)
-        print(query)
         rsvps = db_conn.fetch_all_tables_rows(db_conn, query)
-        print("rsvps result")
         rsvp_count = len(rsvps)
         return rsvp_count
 

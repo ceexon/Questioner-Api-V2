@@ -102,7 +102,7 @@ class User(db_conn):
         Query the users store for a user
         """
         query = """
-        SELECT id, username, email, password, isAdmin FROM users
+        SELECT id, username, email, password,image, isAdmin FROM users
         WHERE users.username = '{}'""".format(username)
         user = db_conn.fetch_single_data_row(
             db_conn, query)
@@ -119,6 +119,17 @@ class User(db_conn):
         the_user = db_conn.fetch_single_data_row(
             db_conn, query)
         return the_user
+
+    @staticmethod
+    def query_by_id(user_id):
+        """" Get username,image by id"""
+        query = """
+            SELECT username,image from users where id='{}'
+        """.format(user_id)
+        the_user = db_conn.fetch_single_data_row(
+            db_conn, query)
+        return the_user
+
 
 
 class LogoutBlacklist(db_conn):
