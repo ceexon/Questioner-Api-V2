@@ -40,7 +40,8 @@ class Question(db_conn):
         """ get a specific question using its <your choice> """
         query = """
         SELECT meetup_id,body FROM questions
-        WHERE {} = '{}' AND body = '{}'""".format(search_by, value, question_body)
+        WHERE {} = '{}' AND body = '{}'
+        """.format(search_by, value, question_body)
         question = db_conn.fetch_single_data_row(db_conn, query)
         return question
 
@@ -61,29 +62,16 @@ class Voting(db_conn):
         self.question = voteCast[2]
         self.upvote = voteCast[3]
         self.downvote = voteCast[4]
-        self.votes = voteCast[5] + self.upvote - self.downvote
         self.voted_at = datetime.datetime.utcnow()
 
     def update_to_votes(self):
         query = """
         INSERT INTO votes (user_id, meetup_id, question_id,
-         upvotes, downvotes, votes, voted_at)
-        VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}')
+         upvotes, downvotes, voted_at)
+        VALUES('{}', '{}', '{}', '{}', '{}', '{}')
         """.format(self.user, self.meetup, self.question, self.upvote,
-                   self.downvote, self.votes, self.voted_at)
+                   self.downvote, self.voted_at)
         self.save_incoming_data_or_updates(query)
-
-    @staticmethod
-    def get_initial_vote_count(question_id):
-        """ get votes to a given question """
-        query = """
-        SELECT votes FROM votes
-        WHERE question_id = '{}'""".format(question_id)
-        all_voted_user_count = db_conn.fetch_all_tables_rows(db_conn, query)
-        if all_voted_user_count:
-            return all_voted_user_count[-1]
-        else:
-            return 0
 
     @staticmethod
     def get_from_questions(quiz_id):
@@ -95,20 +83,32 @@ class Voting(db_conn):
         return question
 
     @staticmethod
-    def get_a_voted_user_(user_id):
+    def get_votes_by_user(user_id, question_id):
         """ get a specific question using user id voted-user """
         query = """
-        SELECT question_id FROM votes
-        WHERE user_id = '{}'""".format(user_id)
-        questionId = db_conn.fetch_all_tables_rows(db_conn, query)
-        return questionId
+        SELECT upvotes,downvotes FROM votes
+        WHERE user_id='{}' AND question_id='{}'""".format(user_id, question_id)
+        user_vote = db_conn.fetch_all_tables_rows(db_conn, query)
+        return user_vote
 
     @staticmethod
-    def get_all_up_down_votes(up_or_down_votes, question_id):
+    def update_user_vote(user_id, question_id, upvote, downvote):
+        """ Update vote """
+        query = """
+            UPDATE 
+            votes SET 
+            upvotes='{}',
+            downvotes='{}'
+            WHERE user_id='{}' and question_id='{}'
+        """.format(upvote, downvote, user_id, question_id)
+        db_conn.save_incoming_data_or_updates(db_conn, query)
+
+    @staticmethod
+    def get_all_up_down_votes(question_id, fetch_by, vote_value):
         """ pick all upvotes or downvotes from a question """
         query = """
-        SELECT {} from votes WHERE question_id = {}
-        """.format(up_or_down_votes, question_id)
+        SELECT * from votes WHERE question_id = {} AND {}='{}'
+        """.format(question_id, fetch_by, vote_value)
         votes = db_conn.fetch_all_tables_rows(db_conn, query)
         return votes
 
