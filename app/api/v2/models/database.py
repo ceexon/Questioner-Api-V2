@@ -15,7 +15,7 @@ class DatabaseConnection:
             conn = psycopg2.connect(db_url)
             cur = conn.cursor()
         except Exception as error:
-            print('Unable to connect to database:', error)
+            return error
 
     def create_tables_and_admin(self):
         """ creates all tables """
