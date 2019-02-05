@@ -82,7 +82,6 @@ class TestQuestions(BaseTest):
             headers={
                 "x-access-token": self.sign_login_local()})
         result = json.loads(response.data.decode("utf-8"), secret)
-        print("\n\n", result, "\n\n")
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
 
@@ -92,7 +91,7 @@ class TestQuestions(BaseTest):
             headers={
                 "x-access-token": self.sign_login_local()})
         result = json.loads(response.data.decode("utf-8"), secret)
-        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.status_code, 403)
 
         """ test downvote fails after upvote same user """
         response = self.client.patch(
