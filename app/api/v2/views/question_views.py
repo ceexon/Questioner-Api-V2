@@ -58,9 +58,9 @@ def ask_question(current_user, meet_id):
                         "title": quest_title,
                         "body": quest_body
                     },
-                    "asker":{
-                    "username": user_name,
-                    "image": user_image
+                    "asker": {
+                        "username": user_name,
+                        "image": user_image
                     }}), 201
 
 
@@ -76,15 +76,50 @@ def voting_action(current_user, quiz_id, upvote, downvote):
     downvote = downvote
     upvote = upvote
     user_id = user_id
-    all_init_votes = Voting.get_initial_vote_count(question_id)
-    if all_init_votes:
-        all_init_votes = all_init_votes[0]
+
+    voted_user = Voting.get_votes_by_user(logged_user[0], question_id)
+    current_vote = (upvote, downvote)
+    if current_vote in voted_user:
+        abort(make_response(
+            jsonify({"message": "you have already voted"}), 403))
+
+    if not voted_user:
+        vote_list = [user_id, meetup, question_id, upvote, downvote]
+        new_vote = Voting(vote_list)
+        new_vote.update_to_votes()
+
     else:
-        all_init_votes = all_init_votes
-    new_vote = Voting([user_id, meetup, question_id,
-                       upvote, downvote, all_init_votes])
-    new_vote.update_to_votes()
-    return [meetup, title, body, all_init_votes]
+        all_upvotes = Voting.get_all_up_down_votes(question_id, "upvotes", 1)
+        all_downvotes = Voting.get_all_up_down_votes(
+            question_id, "downvotes", 1)
+        current_votes = len(all_upvotes) - len(all_downvotes)
+        if len(all_upvotes) > 0:
+            first_upvoter = all_upvotes[0][1]
+        if len(all_downvotes) > 0:
+            first_downvoter = all_downvotes[0][1]
+        if current_votes == 1 and user_id == first_upvoter:
+            current_votes = current_votes - downvote - len(all_upvotes)
+        elif current_votes == -1 and user_id == first_downvoter:
+            current_votes = current_votes + len(all_downvotes) + upvote
+        else:
+            if upvote:
+                current_votes = current_votes + upvote - \
+                    len(all_upvotes) + len(all_downvotes)
+            if downvote:
+                current_votes = current_votes - downvote
+        Voting.update_user_vote(user_id, question_id,
+                                upvote, downvote)
+
+    all_upvotes = len(Voting.get_all_up_down_votes(question_id, "upvotes", 1))
+    all_downvotes = len(Voting.get_all_up_down_votes(
+        question_id, "downvotes", 1))
+    votes = all_upvotes - all_downvotes
+    votes_data = {
+        "upvotes": all_upvotes,
+        "downvotes": all_downvotes,
+        "votes_diff": votes
+    }
+    return [meetup, title, body, votes_data]
 
 
 @q_blue.route('/questions/<quiz_id>/upvote', methods=["PATCH"])
@@ -94,9 +129,12 @@ def upvote_question(current_user, quiz_id):
     return jsonify({"status": 201, "data": {
         "meetup": upvoted[0],
         "title": upvoted[1],
-        "body": upvoted[2],
-        "upvotes": str(upvoted[3]+1)
-    }}), 201
+        "body": upvoted[2]
+    },
+        "voting_stats": {
+        "votes_data": str(upvoted[3])
+    }
+    }), 201
 
 
 @q_blue.route('/questions/<quiz_id>/downvote', methods=["PATCH"])
@@ -106,8 +144,10 @@ def downvote_question(current_user, quiz_id):
     return jsonify({"status": 201, "data": {
         "meetup": downvoted[0],
         "title": downvoted[1],
-        "body": downvoted[2],
-        "votes": str(downvoted[3]-1)
+        "body": downvoted[2]
+    },
+        "voting_stats": {
+        "vote_data": str(downvoted[3])
     }}), 201
 
 
@@ -174,18 +214,18 @@ def get_questions_for_one_meetup(meet_id):
         }), 404
 
     for index, question in enumerate(all_meetup_questions):
-            current_question = {}
-            current_question["id"] = question[0]
-            current_question["user id"] = question[1]
-            current_user = User.query_by_id(question[1])
-            user_data = {}
-            user_data["username"] = current_user[0]
-            user_data["image"] = current_user[1]
-            current_question["meetup id"] = question[2]
-            current_question["title"] = question[3]
-            current_question["body"] = question[4]
-            current_question["asker"] = user_data
-            serialized_questions.append(current_question)
+        current_question = {}
+        current_question["id"] = question[0]
+        current_question["user id"] = question[1]
+        current_user = User.query_by_id(question[1])
+        user_data = {}
+        user_data["username"] = current_user[0]
+        user_data["image"] = current_user[1]
+        current_question["meetup id"] = question[2]
+        current_question["title"] = question[3]
+        current_question["body"] = question[4]
+        current_question["asker"] = user_data
+        serialized_questions.append(current_question)
 
     return jsonify({
         "status": 200,
