@@ -86,7 +86,6 @@ def set_up_tables():
           question_id INTEGER NOT NULL,
           upvotes INTEGER NOT NULL DEFAULT 0,
           downvotes INTEGER NOT NULL DEFAULT 0,
-          votes INTEGER NOT NULL DEFAULT 0,
           voted_at TIMESTAMP);"""
 
     create_logout_blacklist = """
