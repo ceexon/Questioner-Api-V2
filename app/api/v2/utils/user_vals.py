@@ -70,14 +70,14 @@ class UserValidation(BaseValidation):
                 jsonify({
                     "status": 422,
                     "message": "phone number length invalid(11-13)",
-                    "error" : "invalid phone number"}), 422))
+                    "error": "invalid phone number"}), 422))
         elif phone[0].isdigit() and phone.isdigit():
             if not len(phone) == 10:
                 abort(make_response(
                     jsonify({
                         "status": 422,
                         "message": "phone number length invalid(10)",
-                    "error" : "invalid phone number"}), 422))
+                        "error": "invalid phone number"}), 422))
 
     def validate_phone(self):
         phone = self.data["phone"].strip()
@@ -86,20 +86,19 @@ class UserValidation(BaseValidation):
             abort(make_response(jsonify({
                 "status": 422,
                 "message": "phone number can only be digits after '+'",
-                    "error" : "invalid phone number"}), 422))
+                "error": "invalid phone number"}), 422))
         elif (phone[0] == "+" and phone[1:].isdigit()) or phone.isdigit():
             phone = True
         elif not phone[0].isdigit() or not phone[0] == "+":
             abort(make_response(jsonify({
                 "status": 422,
                 "message": "phone number can start with '+' and have digits",
-                    "error" : "invalid phone number"}),
+                "error": "invalid phone number"}),
                 422))
 
     def valid_username(self):
         """ validates the username parsed """
         username = self.data["username"].strip()
-        print(username)
         if re.search("[!@#$%^&*-/\\')(;\"`<>?:|}{~ ]", username):
             abort(make_response(
                 jsonify({
