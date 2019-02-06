@@ -75,9 +75,9 @@ def token_required(f):
             used_token = LogoutBlacklist.get_blacklisted(token)
             if used_token:
                 abort(make_response(jsonify({
-                    "status": 403,
+                    "status": 401,
                     "error": "Token has already been used",
-                    "message": "please login again to continue"}), 403))
+                    "message": "please login again to continue"}), 401))
         else:
             abort(make_response(jsonify({"error": "Token is missing"}), 401))
         try:
