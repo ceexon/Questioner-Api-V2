@@ -76,14 +76,21 @@ def voting_action(current_user, quiz_id, upvote, downvote):
     downvote = downvote
     upvote = upvote
     user_id = user_id
+    print(user_id)
+
+    if user_id == question[1]:
+        abort(make_response(jsonify({
+                            "status": 403,
+                            "message": "you cannot vote on your question",
+                            }), 403))
 
     voted_user = Voting.get_votes_by_user(logged_user[0], question_id)
     current_vote = (upvote, downvote)
     if current_vote in voted_user:
         abort(make_response(
             jsonify(
-                {"status" : 403,
-                "message": "you have already voted"}), 403))
+                {"status": 403,
+                 "message": "you have already voted"}), 403))
 
     if not voted_user:
         vote_list = [user_id, meetup, question_id, upvote, downvote]
@@ -116,7 +123,7 @@ def voting_action(current_user, quiz_id, upvote, downvote):
     all_downvotes = len(Voting.get_all_up_down_votes(
         question_id, "downvotes", 1))
     votes = all_upvotes - all_downvotes
-    votes_data = [all_upvotes,all_downvotes, votes]
+    votes_data = [all_upvotes, all_downvotes, votes]
     return [meetup, title, body, votes_data]
 
 
@@ -131,9 +138,9 @@ def upvote_question(current_user, quiz_id):
     },
         "voting_stats": {
         "votes_data": {
-        "upvotes": upvoted[3][0],
-        "downvotes": upvoted[3][1],
-        "voteDiff": upvoted[3][2]
+            "upvotes": upvoted[3][0],
+            "downvotes": upvoted[3][1],
+            "voteDiff": upvoted[3][2]
         }
     }
     }), 201
@@ -150,9 +157,9 @@ def downvote_question(current_user, quiz_id):
     },
         "voting_stats": {
         "votes_data": {
-        "upvotes": downvoted[3][0],
-        "downvotes": downvoted[3][1],
-        "voteDiff": downvoted[3][2]
+            "upvotes": downvoted[3][0],
+            "downvotes": downvoted[3][1],
+            "voteDiff": downvoted[3][2]
         }
     }}), 201
 
@@ -222,9 +229,10 @@ def get_questions_for_one_meetup(meet_id):
     for index, question in enumerate(all_meetup_questions):
         current_question = {}
         current_question["id"] = question[0]
-        all_upvotes = len(Voting.get_all_up_down_votes(question[0], "upvotes", 1))
+        all_upvotes = len(Voting.get_all_up_down_votes(
+            question[0], "upvotes", 1))
         all_downvotes = len(Voting.get_all_up_down_votes(
-                    question[0], "downvotes", 1))
+            question[0], "downvotes", 1))
         current_question["user id"] = question[1]
         current_user = User.query_by_id(question[1])
         user_data = {}
@@ -235,8 +243,8 @@ def get_questions_for_one_meetup(meet_id):
         current_question["body"] = question[4]
         current_question["asker"] = user_data
         current_question["votes"] = {
-            "upvotes" : all_upvotes,
-            "downvotes" : all_downvotes,
+            "upvotes": all_upvotes,
+            "downvotes": all_downvotes,
             "voteDiff": all_upvotes - all_downvotes
         }
         serialized_questions.append(current_question)
