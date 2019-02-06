@@ -157,6 +157,6 @@ class TestQuestions(BaseTest):
             headers={"x-access-token": logoutToken},
             content_type="application/json")
         result = json.loads(response.data.decode("utf-8"), secret)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(result["error"], "Token has already been used")
         self.assertEqual(result["message"], "please login again to continue")
