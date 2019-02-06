@@ -79,12 +79,15 @@ def token_required(f):
                     "error": "Token has already been used",
                     "message": "please login again to continue"}), 403))
         else:
-            abort(make_response(jsonify({"error": "Token is missing"}), 401))
+            abort(make_response(jsonify({
+                "status" : 401,
+                "error": "Token is missing"}), 401))
         try:
             data = jwt.decode(token, KEY, algorithms="HS256")
             current_user = data["username"]
 
         except (jwt.InvalidTokenError, jwt.ExpiredSignatureError, TypeError):
-            return jsonify({"error": "Token is invalid or expired"}), 401
+            return jsonify({"error": "Token is invalid or expired",
+                "status": 401}), 401
         return f(current_user, *args, **kwargs)
     return decorated
