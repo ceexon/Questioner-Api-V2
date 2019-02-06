@@ -186,7 +186,6 @@ class MeetupTest(BaseTest):
             content_type="application/json")
 
         """ test fail no token """
-        admin_token = self.admin_login()
         response = self.client.post(
             "api/v2/meetups/1/rsvp")
         missingToken = json.loads(response.data.decode("utf-8"))
@@ -194,7 +193,6 @@ class MeetupTest(BaseTest):
         self.assertEqual(missingToken["error"], "Token is missing")
 
         """ test success get one record"""
-        admin_token = self.admin_login()
         response = self.client.get(
             "api/v2/meetups/1", headers={"x-access-token": admin_token})
 
