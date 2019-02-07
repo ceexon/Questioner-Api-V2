@@ -115,7 +115,7 @@ def reset_profile(current_user):
     #     catch_key_error()
 
 
-@v2_blue.route("/logout", methods=["POST","GEt"])
+@v2_blue.route("/logout", methods=["POST","GET"])
 @token_required
 def user_logout(current_user):
     logout_token = request.headers["x-access-token"]
