@@ -53,10 +53,12 @@ class DatabaseConnection:
     def fetch_all_if_exists(self, table_name, column_name, column_value):
         """ gets all details from a table with suggessted property """
         query = """
-            SELECT * FROM {} where {} = '{}'
+            SELECT * FROM {} where {} = {}
         """.format(table_name, column_name, column_value)
         cur.execute(query)
+        print(query)
         result = cur.fetchall()
+        print(result)
         if not result:
             abort(make_response(jsonify({
                 "status": 404,
