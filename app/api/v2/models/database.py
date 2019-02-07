@@ -56,9 +56,7 @@ class DatabaseConnection:
             SELECT * FROM {} where {} = {}
         """.format(table_name, column_name, column_value)
         cur.execute(query)
-        print(query)
         result = cur.fetchall()
-        print(result)
         if not result:
             abort(make_response(jsonify({
                 "status": 404,
