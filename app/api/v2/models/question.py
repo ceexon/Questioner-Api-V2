@@ -133,10 +133,11 @@ class Comment(db_conn):
 
     @staticmethod
     def serialize_a_comment(comment_list):
-        serial_comment = {}
+        """ format a comment"""
         serial_comment_list = []
         for comment in comment_list:
             if comment:
+                serial_comment = {}
                 serial_comment["Id"] = comment[0]
                 serial_comment["User"] = comment[1]
                 serial_comment["Question"] = comment[2]
@@ -147,3 +148,14 @@ class Comment(db_conn):
                 serial_comment_list.append(serial_comment)
 
         return serial_comment_list
+
+    @staticmethod
+    def get_all_question_comments_number(question_id):
+        """ fetch meetup by id """
+        query = """
+            SELECT * FROM comments WHERE question_id = '{}'
+        """.format(question_id)
+        comments = db_conn.fetch_all_tables_rows(db_conn, query)
+        comments = len(comments)
+        return comments
+
