@@ -74,13 +74,17 @@ def user_login():
     if not check_password_hash(user_found[-3], password):
         return jsonify({"status": 401, "error": "incorrect password"}), 401
 
+    admin_status = user_found[-1]
+    user_id = user_found[0]
     exp = datetime.datetime.utcnow() + datetime.timedelta(minutes=120)
     token = jwt.encode(
         {"username": username, 'exp': exp}, KEY,
         algorithm='HS256')
 
     return jsonify({"status": 200, "message": "logged in successfully",
-                    "token": token.decode("utf-8", KEY)}), 200
+                    "token": token.decode("utf-8", KEY),
+                    "isAdmin" : admin_status,
+                    "userId" : user_id}), 200
 
 
 def catch_key_error(dictionary, value):
