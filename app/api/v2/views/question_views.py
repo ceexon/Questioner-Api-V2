@@ -190,6 +190,10 @@ def comment_on_question(current_user, quiz_id):
             "status": 404,
             "error": "Question with id {} not found".format(quiz_id)}), 404))
     user_id = logged_user[0]
+    current_user = User.query_by_id(user_id)
+    user_data = {}
+    user_data["username"] = current_user[0]
+    user_data["image"] = current_user[1]
     questionId = question[0]
     title = question[3]
     body = question[4]
@@ -199,7 +203,8 @@ def comment_on_question(current_user, quiz_id):
         "question": questionId,
         "title": title,
         "body": body,
-        "comment": comment
+        "comment": comment,
+        "user": user_data
     }}), 201
 
 
@@ -233,6 +238,7 @@ def get_questions_for_one_meetup(meet_id):
             question[0], "upvotes", 1))
         all_downvotes = len(Voting.get_all_up_down_votes(
             question[0], "downvotes", 1))
+        comments = Comment.get_all_question_comments_number(question[0])
         current_question["user id"] = question[1]
         current_user = User.query_by_id(question[1])
         user_data = {}
@@ -247,8 +253,8 @@ def get_questions_for_one_meetup(meet_id):
             "downvotes": all_downvotes,
             "voteDiff": all_upvotes - all_downvotes
         }
+        current_question["comments"] = comments
         serialized_questions.append(current_question)
-
     return jsonify({
         "status": 200,
         "meetup": current_meetup,
@@ -257,15 +263,26 @@ def get_questions_for_one_meetup(meet_id):
 
 
 @q_blue.route('/questions/<quiz_id>/comments', methods=["GET"])
-@token_required
-def get_all_comments_on_question(current_user, quiz_id):
+def get_all_comments_on_question(quiz_id):
     quiz_id = BaseValidation.confirm_ids(quiz_id)
     the_question = Question.fetch_all_if_exists(
-        Question, 'questions', 'id', quiz_id)
+        Question, 'comments', 'question_id', quiz_id)
     comments = Question.fetch_all_if_exists(
         Question, 'comments', 'question_id', quiz_id)
     the_question = Question.serialize_a_question(the_question)
     comments = Comment.serialize_a_comment(comments)
+    for index,comment in enumerate(comments):
+        print(index, "--------"*20,"\n",comment, "\n", "--------"*20)
+        comment_user = list(User.query_by_id(comment["User"]))
+        user_id = comment["User"]
+        comment_user = {
+            "id" : comment["User"],
+            "username" : comment_user[0],
+            "image" : comment_user[1]
+        }
+        comment["user"] = comment_user
+        print(comment)
+
     return jsonify({
         "status": 200,
         "asked_question": the_question[0],

@@ -93,7 +93,7 @@ class TestQuestions(BaseTest):
         result = json.loads(response.data.decode("utf-8"), secret)
         self.assertEqual(response.status_code, 403)
 
-        """ test downvote fails after upvote same user """
+        """ test downvote after upvote same user """
         response = self.client.patch(
             "/api/v2/questions/1/downvote",
             headers={
@@ -101,14 +101,13 @@ class TestQuestions(BaseTest):
         result = json.loads(response.data.decode("utf-8"), secret)
         self.assertEqual(response.status_code, 201)
 
-        """ test downvote """
+        """ test downvote again fails"""
         response = self.client.patch(
             "/api/v2/questions/1/downvote",
             headers={
                 "x-access-token": self.admin_login()})
         result = json.loads(response.data.decode("utf-8"), secret)
-        self.assertEqual(response.status_code, 201)
-        self.assertTrue(result["data"])
+        self.assertEqual(response.status_code, 403)
 
         """ test comment on question """
         """ comment successful """
@@ -157,6 +156,6 @@ class TestQuestions(BaseTest):
             headers={"x-access-token": logoutToken},
             content_type="application/json")
         result = json.loads(response.data.decode("utf-8"), secret)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 401)
         self.assertEqual(result["error"], "Token has already been used")
         self.assertEqual(result["message"], "please login again to continue")
