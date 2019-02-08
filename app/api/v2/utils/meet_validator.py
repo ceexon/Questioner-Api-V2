@@ -58,6 +58,6 @@ class MeetValid(BaseValidation):
                 "status": 422,
                 "error": "Invalid date",
                 "message": "enter a later date"
-            })))
+            }),422))
 
         return date_string
