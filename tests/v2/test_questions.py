@@ -65,6 +65,15 @@ class TestQuestions(BaseTest):
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
 
+        """ test success get questions of meetup """
+        response = self.client.get("api/v2/meetups/1/questions")
+        self.assertEqual(response.status_code, 200)
+
+        """ test success get questions of meetup invalid meetup"""
+        response = self.client.get("api/v2/meetups/100/questions")
+        self.assertEqual(response.status_code, 404)
+
+
         """ test a try to duplicate post """
         response = self.client.post(
             "/api/v2/meetups/1/questions",
@@ -121,6 +130,16 @@ class TestQuestions(BaseTest):
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
 
+        """ test comment unsuccess question not found"""
+        response = self.client.post(
+            "/api/v2/questions/100/comments",
+            data=json.dumps(testComment),
+            headers={"x-access-token": self.admin_login()},
+            content_type="application/json")
+        result = json.loads(response.data.decode("utf-8"), secret)
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(result["error"],"Question with id 100 not found")
+
         """ get comment successful """
         testComment = {"comment": "my comment"}
         response = self.client.get(
@@ -138,6 +157,7 @@ class TestQuestions(BaseTest):
             headers={"x-access-token": self.admin_login()},
             content_type="application/json")
         self.assertEqual(response.status_code, 400)
+
 
         """ comment unsuccessful no data"""
         response = self.client.post("/api/v2/questions/1/comments", headers={
