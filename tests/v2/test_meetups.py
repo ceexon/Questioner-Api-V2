@@ -95,6 +95,76 @@ class MeetupTest(BaseTest):
         self.assertEqual(created["error"], "tags field is required")
         self.assertEqual(response.status_code, 400)
 
+        """ test when no image found """
+        payload = {
+            "topic":"Machine/Deep Learning",
+            "location":"Girls Club",
+            "happen_on":"03/17/2019 11:30",
+            "tags": ["#ML", "#DeepLearning"],
+            "image": [""],
+            "description" : "Neural Networks & Deep Learning bla bla bla"
+        }
+        response = self.client.post(
+            "api/v2/meetups", data=json.dumps(payload),
+            headers={"x-access-token": admin_token},
+            content_type="application/json")
+        not_created = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(not_created["message"],"tags(#aTag) image(path url)")
+
+        """ test when no image found """
+        payload = {
+            "topic":"Machine/Deep Learning",
+            "location":"Girls Club",
+            "happen_on":"03/17/2019 11:30",
+            "tags": ["#ML", "#DeepLearning"],
+            "image": "",
+            "description" : "Neural Networks & Deep Learning bla bla bla"
+        }
+        response = self.client.post(
+            "api/v2/meetups", data=json.dumps(payload),
+            headers={"x-access-token": admin_token},
+            content_type="application/json")
+        not_created = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(not_created["message"],"tags(#aTag) image(path url)")
+
+        """ test when no date past"""
+        payload = {
+            "topic":"Machine/Deep Learning",
+            "location":"Girls Club",
+            "happen_on":"03/17/2018 11:30",
+            "tags": ["#ML", "#DeepLearning"],
+            "image": ["image/image/imag"],
+            "description" : "Neural Networks & Deep Learning bla bla bla"
+        }
+        response = self.client.post(
+            "api/v2/meetups", data=json.dumps(payload),
+            headers={"x-access-token": admin_token},
+            content_type="application/json")
+        not_created = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(not_created["message"],"enter a later date")
+
+        """ test when no date invalid"""
+        payload = {
+            "topic":"Machine/Deep Learning",
+            "location":"Girls Club",
+            "happen_on":"jjjjaggaggag",
+            "tags": ["#ML", "#DeepLearning"],
+            "image": ["image/image/imag"],
+            "description" : "Neural Networks & Deep Learning bla bla bla"
+        }
+        response = self.client.post(
+            "api/v2/meetups", data=json.dumps(payload),
+            headers={"x-access-token": admin_token},
+            content_type="application/json")
+        not_created = json.loads(response.data.decode("utf-8", secret))
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(not_created["message"],"use mm dd yyyy hr:min ")
+        self.assertEqual(not_created["error"],"invalid date format")
+
+
         """ test success meetup creation"""
         response = self.client.post(
             "api/v2/meetups", data=json.dumps(self.meetup_ok),
@@ -141,6 +211,10 @@ class MeetupTest(BaseTest):
         """ test success get ucoming meetups """
         response = self.client.get("api/v2/meetups/upcoming")
         self.assertEqual(response.status_code, 200)
+
+        """ test success get questions of meetup no questions"""
+        response = self.client.get("api/v2/meetups/1/questions")
+        self.assertEqual(response.status_code, 404)
 
         """ test success get one record failed """
         admin_token = self.admin_login()

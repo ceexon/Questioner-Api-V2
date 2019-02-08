@@ -295,6 +295,13 @@ class TestUserLogin(BaseTest):
         result = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(response.status_code, 200)
         self.assertTrue(result["token"])
+        user_token = result["token"]
+
+        """test get user info """
+        response = self.client.get("api/v2/auth/user/info", headers={
+            "x-access-token": user_token
+            })
+        self.assertEqual(response.status_code, 200)
 
         """registered username but wrong password"""
         self.success_signup["password"] = "toovor"

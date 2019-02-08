@@ -125,10 +125,6 @@ def get_by_id(meet_id):
 @token_required
 def meetup_rsvp(current_user, meet_id):
     logged_user = User.query_username(current_user)
-    if not logged_user:
-        return jsonify({
-            "status": 401,
-            "error": "unregistered user.Plase signin first"}), 401
     user_id = logged_user[0]
 
     try:

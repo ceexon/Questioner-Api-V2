@@ -132,8 +132,19 @@ class Rsvp(Meetup):
         WHERE {} = '{}' AND user_id = '{}'""".format(search_by, meet_id,
                                                      user_id)
 
-        meetup = db_conn.fetch_single_data_row(db_conn, query)
-        return meetup
+        rsvp = db_conn.fetch_single_data_row(db_conn, query)
+        return rsvp
+
+    @staticmethod
+    def get_all_rsvp_by(meet_id, user_id, search_by):
+        """ get a specific rsvp meetup using its id """
+        query = """
+        SELECT user_id,meetup_id,value FROM rsvp
+        WHERE {} = '{}' AND user_id = '{}'""".format(search_by, meet_id,
+                                                     user_id)
+
+        rsvps = db_conn.fetch_all_tables_rows(db_conn, query)
+        return rsvps
 
     @staticmethod
     def update_rsvp_value(user_id, meet_id, value):

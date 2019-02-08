@@ -54,6 +54,16 @@ class Question(db_conn):
         meetups = db_conn.fetch_all_tables_rows(db_conn, query)
         return meetups
 
+    @staticmethod
+    def get_all_questions(table_name,search_by, value):
+        query = """
+            SELECT * FROM {} 
+            WHERE {} = {}
+        """.format(table_name,search_by, value)
+        questions = db_conn.fetch_all_tables_rows(db_conn, query)
+        return questions
+
+
 
 class Voting(db_conn):
     def __init__(self, voteCast):

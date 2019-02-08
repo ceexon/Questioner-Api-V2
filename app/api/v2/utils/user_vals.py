@@ -34,7 +34,7 @@ class UserValidation(BaseValidation):
                 "status": 422,
                 "message": "other name can only be letters",
                 "error": "invalid naming format"
-            })))
+            }),422))
 
         return other
 
