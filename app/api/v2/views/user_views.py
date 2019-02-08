@@ -8,6 +8,8 @@ from werkzeug.security import check_password_hash
 from ..utils.base_vals import BaseValidation, token_required
 from ..utils.user_vals import UserValidation
 from ..models.user import User, LogoutBlacklist
+from ..models.meetup import Rsvp
+from ..models.question import Question,Voting
 v2_blue = Blueprint("ap1v2", __name__)
 KEY = os.getenv("SECRET")
 
@@ -128,3 +130,41 @@ def user_logout(current_user):
     leftPage = LogoutBlacklist(user_id, logout_token)
     leftPage.add_to_blacklist()
     return jsonify({"status": 200, "message": "logged out successfully"}), 200
+
+@v2_blue.route("/user/info", methods=["GET"])
+@token_required
+def user_details(current_user):
+    logged_user = User.query_username(current_user)
+    image = logged_user[-2]
+    user_questions = Question.get_all_questions("questions","user_id", logged_user[0])
+    user_questions = len(user_questions)
+
+    user_comments = Question.get_all_questions("comments","user_id",logged_user[0])
+    user_comments = len(user_comments)
+
+    meetups_ravp_yes = Rsvp.get_all_rsvp_by("YES",logged_user[0],"value")
+    all_yes_rsvps = []
+    for rsvp in meetups_ravp_yes:
+        all_yes_rsvps.append(rsvp[1])
+    rsvp_count = len(meetups_ravp_yes)
+    top_feeds = []
+    previous_meetups = []
+    for metup_id in all_yes_rsvps:
+        meetup_questions = Question.get_all_by_meetup_id(metup_id)
+        if len(meetup_questions) > 0 :
+            question = {}
+            question["id"] = meetup_questions[0][0]
+            question["meetup"] = meetup_questions[0][2]
+            question["title"] = meetup_questions[0][3]
+            question["body"] = meetup_questions[0][4]
+            top_feeds.append(question)
+
+    return jsonify({
+        "status" : 200,
+        "username": current_user,
+        "image": image,
+        "questions" : user_questions,
+        "comments" : user_comments,
+        "rsvps" : rsvp_count,
+        "topQuestions" : top_feeds
+        })
