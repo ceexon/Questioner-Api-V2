@@ -60,7 +60,7 @@ def create_meetup(current_user):
                               "description": description}]}), 201
 
 
-@v_blue.route("/meetups", methods=["GET"])
+@v_blue.route("/meetups/all", methods=["GET"])
 @token_required
 def get_all_meets_admin(current_user):
     """ Fetches all meetups """

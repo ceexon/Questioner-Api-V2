@@ -97,28 +97,21 @@ def catch_key_error(dictionary, value):
         pass
 
 
-@v2_blue.route("/reset-profile", methods=["PATCH"])
+@v2_blue.route("/update/user/<user_id>", methods=["PATCH"])
 @token_required
-def reset_profile(current_user):
+def update_user(current_user, user_id):
+    logged_user = User.query_username(current_user)
+    required_field = ["original_password"]
     try:
-        date_to_update = request.get_json()
+        original_password = request.get_json()
+        original_password = original_password["original password"]
     except Exception:
-        abort(make_response(jsonify({
-            "status": 200,
-            "message": "NO changes made"}), 200))
-
-    valid_user = UserWarning(date_to_update)
-    unchangable = valid_user.unchangable
-    for value in unchangable:
-        if date_to_update[value].strip():
-            return jsonify({
-                "status": 403,
-                "error": "You cannot change " + value,
-                "unchangable": "firstname, lastname,othername, gender"}, 403)
-
-    # changable = valid_user.changable
-    # for value in changable:
-    #     catch_key_error()
+        return jsonify({
+            "status": 400,
+            "error" : "original password field is required"
+            })
+    print(logged_user)
+    return jsonify({"user" : logged_user})
 
 
 @v2_blue.route("/logout", methods=["POST","GET"])
@@ -130,6 +123,7 @@ def user_logout(current_user):
     leftPage = LogoutBlacklist(user_id, logout_token)
     leftPage.add_to_blacklist()
     return jsonify({"status": 200, "message": "logged out successfully"}), 200
+
 
 @v2_blue.route("/user/info", methods=["GET"])
 @token_required
@@ -167,4 +161,33 @@ def user_details(current_user):
         "comments" : user_comments,
         "rsvps" : rsvp_count,
         "topQuestions" : top_feeds
-        })
+        }),200
+
+
+@v2_blue.route("/users/all") 
+@token_required
+def all_users(current_user):
+    logged_user = User.query_username(current_user)
+    adminStatus = logged_user[-1]
+    if not adminStatus:
+        return jsonify({
+            "status": 403,
+            "error": "you canot access the meetups"}), 403
+    all_users = User.get_all_users()
+    serialized_users = []
+    for user in all_users:
+        single_user = {}
+        single_user["id"] = user[0]
+        single_user["first name"] = user[1]
+        single_user["last name"] = user[2]
+        single_user["gender"] = user[4]
+        single_user["username"] = user[6]
+        single_user["email"] = user[7]
+        single_user["phone"] = user[8]
+        single_user["isAdmin"] = user[-1]
+        serialized_users.append(single_user)
+
+    return jsonify({
+        "users" : serialized_users
+        }) 
+

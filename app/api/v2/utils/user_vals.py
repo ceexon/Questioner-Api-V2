@@ -22,12 +22,12 @@ class UserValidation(BaseValidation):
             pass
 
         if not other:
-            return 0
+            return 
 
         other = other.strip()
         if not other:
             other = ""
-            return 0
+            return 
 
         if not other.isalpha():
             abort(make_response(jsonify({
