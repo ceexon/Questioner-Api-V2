@@ -42,7 +42,7 @@ class MeetupTest(BaseTest):
         """ test fail to get all meet records not found """
         admin_token = self.admin_login()
         response = self.client.get(
-            "api/v2/meetups", headers={"x-access-token": admin_token})
+            "api/v2/meetups/all", headers={"x-access-token": admin_token})
         self.assertEqual(response.status_code, 404)
 
         response = self.client.get(
@@ -197,13 +197,13 @@ class MeetupTest(BaseTest):
         """ test success get all meet records admin """
         admin_token = self.admin_login()
         response = self.client.get(
-            "api/v2/meetups", headers={"x-access-token": admin_token})
+            "api/v2/meetups/all", headers={"x-access-token": admin_token})
         self.assertEqual(response.status_code, 200)
 
-        """ test success get all meet records admin """
+        """ test fail get all meet records non-admin """
         local_token = self.sign_login_local()
         response = self.client.get(
-            "api/v2/meetups", headers={"x-access-token": local_token})
+            "api/v2/meetups/all", headers={"x-access-token": local_token})
         cannot = json.loads(response.data.decode("utf-8"))
         self.assertEqual(cannot["error"], "you canot access the meetups")
         self.assertEqual(response.status_code, 403)
