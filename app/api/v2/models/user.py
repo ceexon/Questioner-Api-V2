@@ -86,7 +86,7 @@ class User(db_conn):
         password = '{}',
         phone = '{}',
         isAdmin = '{}'
-        WHERE publicId = {}
+        WHERE id = {}
         """.format(self.fname, self.lname, self.other, self.uname,
                    self.email, self.password,
                    self.phone, self.isAdmin, user_id)
@@ -121,6 +121,14 @@ class User(db_conn):
         return the_user
 
     @staticmethod
+    def get_all_users():
+        query = """
+        SELECT * FROM users
+        """
+        users = db_conn.fetch_all_tables_rows(db_conn, query)
+        return users
+
+    @staticmethod
     def query_by_id(user_id):
         """" Get username,image by id"""
         query = """
@@ -129,7 +137,6 @@ class User(db_conn):
         the_user = db_conn.fetch_single_data_row(
             db_conn, query)
         return the_user
-
 
 
 class LogoutBlacklist(db_conn):
