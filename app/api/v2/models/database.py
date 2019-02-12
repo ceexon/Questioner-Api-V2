@@ -15,7 +15,8 @@ class DatabaseConnection:
             conn = psycopg2.connect(db_url)
             cur = conn.cursor()
         except Exception as error:
-            return error
+            print(error)
+            # return error
 
     def create_tables_and_admin(self):
         """ creates all tables """
@@ -60,7 +61,7 @@ class DatabaseConnection:
         if not result:
             abort(make_response(jsonify({
                 "status": 404,
-                "message": "{} with {} '{}' not found".format(
+                "message": "{} with {} `{}` not found".format(
                     table_name[0:-1], column_name, column_value),
                 "error": "data not found"}), 404))
         return result
@@ -74,7 +75,7 @@ class DatabaseConnection:
             columns = " ,".join(columns_list)
 
         query = """
-        SELECT {} FROM {} WHERE {} = '{}'
+        SELECT {} FROM {} WHERE {} = `{}`
         """.format(columns, table_name, select_column, column_value)
 
         cur.execute(query)
@@ -84,7 +85,7 @@ class DatabaseConnection:
 
         abort(make_response(jsonify({
             "status": 404,
-            "message": "{} with {} '{}' not found".format(
+            "message": "{} with {} `{}` not found".format(
                 table_name[0:-1], select_column, column_value),
             "error": "data not found"}), 404))
 
@@ -95,7 +96,7 @@ class DatabaseConnection:
             columns_to_alter.append(pair[0])
 
         query = """
-            UPDATE {} SET {} = '{}' WHERE {} = '{}'
+            UPDATE {} SET {} = `{}` WHERE {} = `{}`
             """.format(
             table_name,
             select_column, to_change, new_value, select_column, column_value)
