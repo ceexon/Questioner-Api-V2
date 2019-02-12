@@ -2,7 +2,7 @@
 import os
 import unittest
 import json
-from tests.v2.test_users import BaseTest, secret
+from tests.v2.test_users import BaseTest
 
 
 class TestQuestions(BaseTest):
@@ -11,7 +11,7 @@ class TestQuestions(BaseTest):
             "api/v2/auth/login",
             data=json.dumps({"username": "admin", "password": "$$PAss12"}),
             content_type="application/json")
-        fetch_adm_token = json.loads(response.data.decode("utf-8", secret))
+        fetch_adm_token = json.loads(response.data.decode("utf-8"))
         admin_token = fetch_adm_token["token"]
         return admin_token
 
@@ -33,7 +33,7 @@ class TestQuestions(BaseTest):
             "api/v2/auth/login",
             data=json.dumps({"username": "kurlandss", "password": "$$22BBkk"}),
             content_type="application/json")
-        fetch_local_token = json.loads(response.data.decode("utf-8", secret))
+        fetch_local_token = json.loads(response.data.decode("utf-8"))
         local_token = fetch_local_token["token"]
         return local_token
 
@@ -51,7 +51,7 @@ class TestQuestions(BaseTest):
             data=json.dumps(self.question_ask), headers={
                 "x-access-token": self.admin_login()},
             content_type="application/json")
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
         self.assertTrue(result["error"], "Mettup with id 3 not found")
 
@@ -61,7 +61,7 @@ class TestQuestions(BaseTest):
             data=json.dumps(self.right_meetup_id_added), headers={
                 "x-access-token": self.admin_login()},
             content_type="application/json")
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
 
@@ -73,14 +73,13 @@ class TestQuestions(BaseTest):
         response = self.client.get("api/v2/meetups/100/questions")
         self.assertEqual(response.status_code, 404)
 
-
         """ test a try to duplicate post """
         response = self.client.post(
             "/api/v2/meetups/1/questions",
             data=json.dumps(self.right_meetup_id_added), headers={
                 "x-access-token": self.admin_login()},
             content_type="application/json")
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 403)
         self.assertEqual(result["error"], "A similar question already exists")
 
@@ -90,7 +89,7 @@ class TestQuestions(BaseTest):
             "/api/v2/questions/1/upvote",
             headers={
                 "x-access-token": self.sign_login_local()})
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
 
@@ -99,7 +98,7 @@ class TestQuestions(BaseTest):
             "/api/v2/questions/1/upvote",
             headers={
                 "x-access-token": self.sign_login_local()})
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 403)
 
         """ test downvote after upvote same user """
@@ -107,7 +106,7 @@ class TestQuestions(BaseTest):
             "/api/v2/questions/1/downvote",
             headers={
                 "x-access-token": self.sign_login_local()})
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 201)
 
         """ test downvote again fails"""
@@ -115,7 +114,7 @@ class TestQuestions(BaseTest):
             "/api/v2/questions/1/downvote",
             headers={
                 "x-access-token": self.admin_login()})
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 403)
 
         """ test comment on question """
@@ -126,7 +125,7 @@ class TestQuestions(BaseTest):
             data=json.dumps(testComment),
             headers={"x-access-token": self.admin_login()},
             content_type="application/json")
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 201)
         self.assertTrue(result["data"])
 
@@ -136,9 +135,9 @@ class TestQuestions(BaseTest):
             data=json.dumps(testComment),
             headers={"x-access-token": self.admin_login()},
             content_type="application/json")
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 404)
-        self.assertEqual(result["error"],"Question with id 100 not found")
+        self.assertEqual(result["error"], "Question with id 100 not found")
 
         """ get comment successful """
         testComment = {"comment": "my comment"}
@@ -158,7 +157,6 @@ class TestQuestions(BaseTest):
             content_type="application/json")
         self.assertEqual(response.status_code, 400)
 
-
         """ comment unsuccessful no data"""
         response = self.client.post("/api/v2/questions/1/comments", headers={
             "x-access-token": self.admin_login()})
@@ -175,7 +173,7 @@ class TestQuestions(BaseTest):
             data=json.dumps(testComment),
             headers={"x-access-token": logoutToken},
             content_type="application/json")
-        result = json.loads(response.data.decode("utf-8"), secret)
+        result = json.loads(response.data.decode("utf-8"))
         self.assertEqual(response.status_code, 401)
         self.assertEqual(result["error"], "Token has already been used")
         self.assertEqual(result["message"], "please login again to continue")

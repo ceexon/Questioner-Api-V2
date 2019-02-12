@@ -140,7 +140,7 @@ class UserSignUp(BaseTest):
         response = self.client.post("api/v2/auth/signup",
                                     data=json.dumps(self.miss_signup),
                                     content_type="application/json")
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 422)
         errorEmail = json.loads(response.data.decode("utf-8", secret))
         self.assertEqual(errorEmail["error"], 'email field(s) not found')
 
