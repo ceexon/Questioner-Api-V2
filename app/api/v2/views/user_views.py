@@ -1,4 +1,4 @@
-""" contains all endpoints for user functions such as signup and login """
+"""contains all endpoints for user functions such as signup and login """
 
 import os
 import datetime
@@ -9,14 +9,14 @@ from ..utils.base_vals import BaseValidation, token_required
 from ..utils.user_vals import UserValidation
 from ..models.user import User, LogoutBlacklist
 from ..models.meetup import Rsvp
-from ..models.question import Question,Voting
+from ..models.question import Question, Voting
 v2_blue = Blueprint("ap1v2", __name__)
 KEY = os.getenv("SECRET")
 
 
 @v2_blue.route("/signup", methods=["POST"])
 def user_signup():
-    """ endpoint for user to create account """
+    """endpoint for user to create account """
     try:
         user_data = request.get_json()
         if not user_data:
@@ -57,7 +57,7 @@ def user_signup():
 
 @v2_blue.route("/login", methods=['POST'])
 def user_login():
-    """ endpoint for users to sign in """
+    """endpoint for users to sign in """
     try:
         log_data = request.get_json()
 
@@ -85,8 +85,8 @@ def user_login():
 
     return jsonify({"status": 200, "message": "logged in successfully",
                     "token": token.decode("utf-8", KEY),
-                    "isAdmin" : admin_status,
-                    "userId" : user_id}), 200
+                    "isAdmin": admin_status,
+                    "userId": user_id}), 200
 
 
 def catch_key_error(dictionary, value):
@@ -108,13 +108,13 @@ def update_user(current_user, user_id):
     except Exception:
         return jsonify({
             "status": 400,
-            "error" : "original password field is required"
+            "error": "original password field is required"
             })
     print(logged_user)
-    return jsonify({"user" : logged_user})
+    return jsonify({"user": logged_user})
 
 
-@v2_blue.route("/logout", methods=["POST","GET"])
+@v2_blue.route("/logout", methods=["POST", "GET"])
 @token_required
 def user_logout(current_user):
     logout_token = request.headers["x-access-token"]
@@ -130,13 +130,13 @@ def user_logout(current_user):
 def user_details(current_user):
     logged_user = User.query_username(current_user)
     image = logged_user[-2]
-    user_questions = Question.get_all_questions("questions","user_id", logged_user[0])
+    user_questions = Question.get_all_questions("questions", "user_id", logged_user[0])
     user_questions = len(user_questions)
 
-    user_comments = Question.get_all_questions("comments","user_id",logged_user[0])
+    user_comments = Question.get_all_questions("comments", "user_id", logged_user[0])
     user_comments = len(user_comments)
 
-    meetups_ravp_yes = Rsvp.get_all_rsvp_by("YES",logged_user[0],"value")
+    meetups_ravp_yes = Rsvp.get_all_rsvp_by("YES", logged_user[0], "value")
     all_yes_rsvps = []
     for rsvp in meetups_ravp_yes:
         all_yes_rsvps.append(rsvp[1])
@@ -145,7 +145,7 @@ def user_details(current_user):
     previous_meetups = []
     for metup_id in all_yes_rsvps:
         meetup_questions = Question.get_all_by_meetup_id(metup_id)
-        if len(meetup_questions) > 0 :
+        if len(meetup_questions) > 0:
             question = {}
             question["id"] = meetup_questions[0][0]
             question["meetup"] = meetup_questions[0][2]
@@ -154,17 +154,17 @@ def user_details(current_user):
             top_feeds.append(question)
 
     return jsonify({
-        "status" : 200,
+        "status": 200,
         "username": current_user,
         "image": image,
-        "questions" : user_questions,
-        "comments" : user_comments,
-        "rsvps" : rsvp_count,
-        "topQuestions" : top_feeds
-        }),200
+        "questions": user_questions,
+        "comments": user_comments,
+        "rsvps": rsvp_count,
+        "topQuestions": top_feeds
+        }), 200
 
 
-@v2_blue.route("/users/all") 
+@v2_blue.route("/users/all")
 @token_required
 def all_users(current_user):
     logged_user = User.query_username(current_user)
@@ -186,8 +186,4 @@ def all_users(current_user):
         single_user["phone"] = user[8]
         single_user["isAdmin"] = user[-1]
         serialized_users.append(single_user)
-
-    return jsonify({
-        "users" : serialized_users
-        }) 
-
+    return jsonify({"users": serialized_users})

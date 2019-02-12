@@ -158,7 +158,7 @@ def meetup_rsvp(current_user, meet_id):
     else:
         return jsonify({
             "status": 400,
-            "error": "invalid choice. Status response is limited to 'yes/maybe/no'"}
+            "error": "invalid choice. use 'yes/maybe/no'"}
         ), 400
     meetup = Meetup.format_meet_info(meetup)
     topic = meetup["topic"]

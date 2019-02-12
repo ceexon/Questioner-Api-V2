@@ -76,7 +76,6 @@ def voting_action(current_user, quiz_id, upvote, downvote):
     downvote = downvote
     upvote = upvote
     user_id = user_id
-    print(user_id)
 
     if user_id == question[1]:
         abort(make_response(jsonify({
@@ -271,17 +270,15 @@ def get_all_comments_on_question(quiz_id):
         Question, 'comments', 'question_id', quiz_id)
     the_question = Question.serialize_a_question(the_question)
     comments = Comment.serialize_a_comment(comments)
-    for index,comment in enumerate(comments):
-        print(index, "--------"*20,"\n",comment, "\n", "--------"*20)
+    for index, comment in enumerate(comments):
         comment_user = list(User.query_by_id(comment["User"]))
         user_id = comment["User"]
         comment_user = {
-            "id" : comment["User"],
-            "username" : comment_user[0],
-            "image" : comment_user[1]
+            "id": comment["User"],
+            "username": comment_user[0],
+            "image": comment_user[1]
         }
         comment["user"] = comment_user
-        print(comment)
 
     return jsonify({
         "status": 200,
