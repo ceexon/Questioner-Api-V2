@@ -37,8 +37,8 @@ class BaseValidation:
             missing = ", ".join(missing)
             abort(make_response(
                 jsonify({
-                    "status": 404,
-                    "error": missing+" field(s) not found"}), 404))
+                    "status": 422,
+                    "error": missing+" field(s) not found"}), 422))
 
     def null_field_check(self, req_fields):
         empty = []

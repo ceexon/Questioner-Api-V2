@@ -40,7 +40,7 @@ class MeetValid(BaseValidation):
             if meet["location"] == meetup["location"] and meet["happen_on"] == happen_on:
                 abort(make_response(jsonify({
                     "status": "409",
-                    "error": "You may be trying to duplicate a meetup, one with same time and location exists"}),
+                    "error": "A with same time and location exists. Please confirm!!"}),
                     409))
 
     @staticmethod
@@ -58,6 +58,6 @@ class MeetValid(BaseValidation):
                 "status": 422,
                 "error": "Invalid date",
                 "message": "enter a later date"
-            }),422))
+            }), 422))
 
         return date_string

@@ -22,19 +22,19 @@ class UserValidation(BaseValidation):
             pass
 
         if not other:
-            return 
+            return
 
         other = other.strip()
         if not other:
             other = ""
-            return 
+            return
 
         if not other.isalpha():
             abort(make_response(jsonify({
                 "status": 422,
                 "message": "other name can only be letters",
                 "error": "invalid naming format"
-            }),422))
+            }), 422))
 
         return other
 
