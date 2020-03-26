@@ -37,5 +37,5 @@ pytz==2013b0
 requests==2.21.0
 six==1.12.0
 timestring==1.6.2
-urllib3==1.24.1
+urllib3==1.24.2
 Werkzeug==0.15.3
